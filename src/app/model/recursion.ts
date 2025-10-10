@@ -8,3 +8,7 @@ export interface TimelineBlock {
     recursion_time: string | null;
     levels: TimelineLevel[];
 }
+
+export interface ApexEvent {
+    event_time: Date
+}

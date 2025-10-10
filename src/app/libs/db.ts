@@ -156,3 +156,17 @@ function normalizeTimeline(
 
     return timeline;
 }
+
+export async function getApexEvents() {
+    return getClient().gamelog.findMany({
+        where: {
+            action: "used apex",
+        },
+        select: {
+            event_time: true,
+        },
+        orderBy: {
+            event_time: "asc",
+        },
+    })
+}
