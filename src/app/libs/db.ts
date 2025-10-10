@@ -88,7 +88,7 @@ SELECT
   r.id AS recursion_id,
   r."event_time" AS recursion_time,
   l."event_time" AS level_time,
-  l."Comment" AS level_comment,
+  l."comment" AS level_comment,
   COALESCE(l."event_time", r."event_time") AS event_time
 FROM gamelog r
 LEFT JOIN gamelog l
