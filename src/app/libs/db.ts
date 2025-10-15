@@ -3,6 +3,7 @@
 import { PrismaPg } from "@prisma/adapter-pg"
 import { PrismaClient } from "../model/generated/prisma/client"
 import { TimelineBlock } from "../model/recursion"
+import { maxed_xm_recharge, most_captured_portal, most_captured_portal_day, most_created_field_day, most_deployed_resonator_day, most_destroyed_resonator_day, most_link_created_day, most_mods_deployed_day } from "../model/generated/prisma/sql"
 
 
 function getClient() {
@@ -169,4 +170,76 @@ export async function getApexEvents() {
             event_time: "asc",
         },
     })
+}
+
+export async function getLargestField(){
+    const largestField = await getClient().mind_units_controlled.findFirst({
+        orderBy: {
+            value: 'desc',
+        },
+        select: {
+            time: true,
+            value: true,
+        }
+    })
+    const largestFieldLocation = await getClient().gamelog.findFirst({
+        where: {
+            event_time: largestField?.time,
+            action: 'created link'
+        },
+        select: {
+            latitude: true,
+            longitude: true
+        }
+    })
+    const latitude = largestFieldLocation?.latitude
+    const longitude = largestFieldLocation?.longitude
+    const timestamp = largestField?.time
+    const muCreated = largestField?.value
+    return {
+        latitude: latitude,
+        longitude: longitude,
+        timestamp: timestamp,
+        muCreated: muCreated
+    }
+}
+
+export async function mostXmRechargedInADay(){
+    const mostXmRecharged = await getClient().$queryRawTyped(maxed_xm_recharge())
+    return mostXmRecharged
+}
+
+export async function topCapturedPortal(limit: number){
+    const topCaptured = await getClient().$queryRawTyped(most_captured_portal(limit))
+    return topCaptured
+}
+
+export async function mostCapturedPortalDay() {
+    const topCapturedInADay = await getClient().$queryRawTyped(most_captured_portal_day())
+    return topCapturedInADay
+}
+
+export async function mostCreatedFieldDay(){
+    const maxFieldInADay = await getClient().$queryRawTyped(most_created_field_day())
+    return maxFieldInADay
+}
+
+export async function mostDeployedResonatorDay(){
+    const maxDeployedInADay = await getClient().$queryRawTyped(most_deployed_resonator_day())
+    return maxDeployedInADay
+}
+
+export async function mostDestroyedResonatorDay(){
+    const maxDestroyedInADay = await getClient().$queryRawTyped(most_destroyed_resonator_day())
+    return maxDestroyedInADay
+}
+
+export async function mostCreatedLinkDay(){
+    const maxLinkCreatedInADay = await getClient().$queryRawTyped(most_link_created_day())
+    return maxLinkCreatedInADay
+}
+
+export async function mostModsDeployedDay(){
+    const maxModsDeployedInADay = await getClient().$queryRawTyped(most_mods_deployed_day())
+    return maxModsDeployedInADay
 }
