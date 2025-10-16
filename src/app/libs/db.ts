@@ -243,3 +243,37 @@ export async function mostModsDeployedDay(){
     const maxModsDeployedInADay = await getClient().$queryRawTyped(most_mods_deployed_day())
     return maxModsDeployedInADay
 }
+
+// This code assumes that the player was at one of the anomaly sites
+export async function getPlusDeltaActions(){
+    const plusThetaActions = await getClient().gamelog.findMany({
+        where: {
+            event_time: {
+                gte: new Date('2025-09-20T14:00:00+08:00'), 
+                lte: new Date('2025-09-20T17:00:00+08:00'), 
+            },
+            // there are some actions such as claiming bounties that result in lat, lon 0,0
+            latitude: {
+                not: 0
+            },
+            longitude: {
+                not: 0
+            }
+        },
+        orderBy: {
+            event_time: 'asc',
+        }
+    })
+
+    const serialized = plusThetaActions.map((a, i) => ({
+        id: a.id,
+        latitude: Number(a.latitude),
+        longitude: Number(a.longitude),
+        event_time: i + 1, // number from 1 to N
+        action: a.action,
+        comment: a.comment,
+    }));
+
+
+    return serialized
+}
