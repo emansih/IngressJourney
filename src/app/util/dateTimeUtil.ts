@@ -14,3 +14,11 @@ export function formatDateWithoutTime(date: Date){
     const datePart = date.toLocaleDateString('en-GB', options);
     return datePart
 }
+
+export function formatTime(date: Date, timezone: string) {
+    const timePart = date.toLocaleTimeString('en-GB', {
+        hour12: true, 
+        timeZone: timezone
+    });
+    return timePart
+}

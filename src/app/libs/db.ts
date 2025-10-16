@@ -269,7 +269,8 @@ export async function getPlusDeltaActions(){
         id: a.id,
         latitude: Number(a.latitude),
         longitude: Number(a.longitude),
-        event_time: i + 1, // number from 1 to N
+        event_number: i + 1,
+        event_time: a.event_time,
         action: a.action,
         comment: a.comment,
     }));
