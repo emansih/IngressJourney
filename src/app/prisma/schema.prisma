@@ -86,3 +86,12 @@ model xm_recharged {
 
   @@schema("public")
 }
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model beacon_battles {
+  id        BigInt   @id @default(autoincrement())
+  time      DateTime @db.Timestamptz(6)
+  unique_id BigInt
+
+  @@schema("public")
+}

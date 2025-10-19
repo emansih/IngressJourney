@@ -5,12 +5,13 @@ import { APIProvider, Map, useMap } from '@vis.gl/react-google-maps';
 import { TripsLayer } from '@deck.gl/geo-layers';
 import { GoogleMapsOverlay } from '@deck.gl/google-maps';
 import type { DeckProps } from '@deck.gl/core';
-import { getPlusDeltaActions } from '../libs/db';
+import { getPlusDeltaActions, getUserInteractionBattleBeacon } from '../libs/db';
 import { formatTime } from '../util/dateTimeUtil';
+import { ScatterplotLayer } from '@deck.gl/layers';
 
 type DataType = {
     waypoints: {
-        coordinates: [number, number]; // [lng, lat]
+        coordinates: LatLng; // [lng, lat]
         timestamp: number;
         action: string;
         time: Date;
@@ -39,6 +40,21 @@ export default function Page() {
     const [tripData, setTripData] = useState<DataType[]>([])
     const [totalDuration, setTotalDuration] = useState(1000); // seconds
     const [currentInfo, setCurrentInfo] = useState<{ action: string; timestamp: string } | null>(null);
+    const [pulseTime, setPulseTime] = useState(0);
+    const [battleBeacons, setBattleBeacons] = useState<LatLng[]>([]); 
+
+
+    useEffect(() => {
+        let raf = 0;
+        const start = performance.now();
+        const tick = () => {
+            const elapsed = (performance.now() - start) / 1000;
+            setPulseTime(elapsed);
+            raf = requestAnimationFrame(tick);
+        };
+        raf = requestAnimationFrame(tick);
+        return () => cancelAnimationFrame(raf);
+    }, []);
 
 
     useEffect(() => {
@@ -83,6 +99,9 @@ export default function Page() {
     }, [currentTime, tripData]);
 
     useEffect(() => {
+        getUserInteractionBattleBeacon(new Date('2025-09-20T14:00:00+08:00'), new Date('2025-09-20T17:00:00+08:00')).then((value) => {
+            setBattleBeacons(value)
+        })
         getPlusDeltaActions().then((value) => {
             if (value.length === 0) return;
             const resoDestroyed = value.filter(plusDeltaActions => 
@@ -123,8 +142,24 @@ export default function Page() {
         });
     }, []);
 
-    const tripsLayer = useMemo(
-        () =>
+    const waypointLayer = useMemo(() => {
+        const pulse = (Math.sin(pulseTime * 2) + 1) / 2; 
+        return new ScatterplotLayer({
+            id: 'waypoint-layer',
+            data: battleBeacons.map((b) => ({
+                position: [b[1], b[0]],
+            })),
+            getPosition: (d) => d.position,
+            getFillColor: [66, 135, 245, 200],
+            getRadius: () => 1 + pulse * 10, 
+            radiusUnits: 'pixels',
+            opacity: 0.8,
+            pickable: true,
+            updateTriggers: { getRadius: pulseTime },
+        });
+    }, [battleBeacons, pulseTime]);
+
+    const tripsLayer = useMemo(() =>
             new TripsLayer<DataType>({
                 id: 'TripsLayer',
                 data: tripData,
@@ -141,11 +176,13 @@ export default function Page() {
     );
 
     const deckProps = useMemo(() => ({ layers: [tripsLayer] }), [tripsLayer]);
+    const waypointDeckProps = useMemo(() => ({ layers: [waypointLayer] }), [waypointLayer])
 
     return (
         <APIProvider apiKey={mapKey}>
             <DeckGLOverlay {...deckProps} />  
-           
+            <DeckGLOverlay {...waypointDeckProps} />
+            
             <Map style={{ width: '100vw', height: '100vh' }}
                 defaultCenter={{ lat: -8.710340838, lng: 115.17494434764978 }}
                 defaultZoom={14}

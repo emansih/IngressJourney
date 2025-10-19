@@ -278,3 +278,60 @@ export async function getPlusDeltaActions(){
 
     return serialized
 }
+
+
+export async function getUserInteractionBattleBeacon(start: Date, end: Date){
+    const battleBeaconInteraction = await getClient().beacon_battles.findMany({
+        where: {
+            time: {
+                gte: start,
+                lte: end,
+            }
+        }
+    })
+    // 1 min
+    const MIN_TIME_RANGE_TO_SEARCH = 60000
+    // 3.5 min
+    const MAX_TIME_RANGE_TO_SEARCH = 210000
+    const battleBeaconLocationArray: LatLng[] = []
+    await Promise.all(
+        battleBeaconInteraction.map(async (value) => {
+            let futureTime = value.time.getTime() + MIN_TIME_RANGE_TO_SEARCH
+            const battleBeaconLocation = await getClient().gamelog.findFirst({
+                where: {
+                    event_time: {
+                        gte: value.time,
+                        lte: new Date(futureTime)
+                    },
+                    latitude: {
+                        not: 0
+                    },
+                    longitude: {
+                        not: 0
+                    }
+                }
+            })
+            if(battleBeaconLocation){
+                battleBeaconLocationArray.push([Number(battleBeaconLocation?.latitude), Number(battleBeaconLocation?.longitude)])
+            } else {
+                futureTime = value.time.getTime() + MAX_TIME_RANGE_TO_SEARCH
+                const maxBattleBeaconLocation = await getClient().gamelog.findFirst({
+                    where: {
+                        event_time: {
+                            gte: value.time,
+                            lte: new Date(futureTime)
+                        },
+                        latitude: {
+                            not: 0
+                        },
+                        longitude: {
+                            not: 0
+                        }
+                    }
+                })
+                battleBeaconLocationArray.push([Number(maxBattleBeaconLocation?.latitude), Number(maxBattleBeaconLocation?.longitude)])
+            }
+        })
+    )
+    return battleBeaconLocationArray
+}
