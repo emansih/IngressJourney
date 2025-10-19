@@ -110,7 +110,7 @@ export default function Page() {
                 getTimestamps: (d) => d.waypoints.map((p) => p.timestamp),
                 getColor: [253, 128, 93],
                 currentTime: currentTime,
-                trailLength: totalDuration / 10,
+                trailLength: totalDuration,
                 capRounded: true,
                 jointRounded: true,
                 widthMinPixels: 8,
