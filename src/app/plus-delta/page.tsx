@@ -85,6 +85,28 @@ export default function Page() {
     useEffect(() => {
         getPlusDeltaActions().then((value) => {
             if (value.length === 0) return;
+            const resoDestroyed = value.filter(plusDeltaActions => 
+                plusDeltaActions.action == 'resonator destroyed' && plusDeltaActions.comment == 'success'
+            )
+            const resoDeployed = value.filter(plusDeltaActions =>
+                plusDeltaActions.action == 'resonator deployed' && plusDeltaActions.comment == 'success'
+            )
+            const modsDeployed = value.filter(plusDeltaActions =>
+                plusDeltaActions.action == 'mod deployed' && plusDeltaActions.comment == 'success'
+            )
+            const hackedFriendlyPortal = value.filter(plusDeltaActions =>
+                plusDeltaActions.action == 'hacked friendly portal' && plusDeltaActions.comment == 'success'
+            )
+            const hackedEnemyPortal = value.filter(plusDeltaActions =>
+                plusDeltaActions.action == 'hacked enemy portal' && plusDeltaActions.comment == 'success'
+            )
+            const hackedNeutralPortal = value.filter(plusDeltaActions =>
+                plusDeltaActions.action == 'hacked neutral portal' && plusDeltaActions.comment == 'success'
+            )
+            const createdLink = value.filter(plusSDeltaAction => 
+                plusSDeltaAction.action == 'created link'
+            )
+            
             const formatted: DataType[] = [
                 {
                     waypoints: value.map(item => ({
