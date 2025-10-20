@@ -95,3 +95,17 @@ model beacon_battles {
 
   @@schema("public")
 }
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model anomaly {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  lat         Decimal  @db.Decimal
+  lon         Decimal  @db.Decimal
+  timezone    String
+  series_name String
+  site        String
+  start_time  DateTime @db.Timestamptz(6)
+  end_time    DateTime @db.Timestamptz(6)
+
+  @@schema("public")
+}

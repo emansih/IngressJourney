@@ -245,12 +245,12 @@ export async function mostModsDeployedDay(){
 }
 
 // This code assumes that the player was at one of the anomaly sites
-export async function getActionsRange(startDateTime: string, endDateTime: string){
-    const plusThetaActions = await getClient().gamelog.findMany({
+export async function getActionsRange(startDateTime: Date, endDateTime: Date){
+    const getActions = await getClient().gamelog.findMany({
         where: {
             event_time: {
-                gte: new Date(startDateTime), 
-                lte: new Date(endDateTime), 
+                gte: startDateTime, 
+                lte: endDateTime, 
             },
             // there are some actions such as claiming bounties that result in lat, lon 0,0
             latitude: {
@@ -265,7 +265,7 @@ export async function getActionsRange(startDateTime: string, endDateTime: string
         }
     })
 
-    const serialized = plusThetaActions.map((a, i) => ({
+    const serialized = getActions.map((a, i) => ({
         id: a.id,
         latitude: Number(a.latitude),
         longitude: Number(a.longitude),
@@ -332,4 +332,19 @@ export async function getUserInteractionBattleBeacon(start: Date, end: Date){
         })
     )
     return battleBeaconLocationArray
+}
+
+export async function getAnomaly(){
+    const anomalyData = await getClient().anomaly.findMany()
+    const serialized = anomalyData.map((a) => ({
+        id: a.id,
+        latitude: Number(a.lat),
+        longitude: Number(a.lon),
+        timezone: a.timezone,
+        series_name: a.series_name,
+        site: a.site,
+        start_time: a.start_time,
+        end_time: a.end_time
+    }));
+    return serialized
 }

@@ -99,3 +99,16 @@ create table public.xm_recharged (
   value numeric not null,
   constraint xm_recharged_pkey primary key (id)
 ) TABLESPACE pg_default;
+
+
+create table public.anomaly (
+  id uuid not null default gen_random_uuid (),
+  lat numeric not null,
+  lon numeric not null,
+  timezone text not null,
+  series_name text not null,
+  site text not null,
+  start_time timestamp with time zone not null,
+  end_time timestamp with time zone not null,
+  constraint anomaly_pkey primary key (id)
+) TABLESPACE pg_default;
