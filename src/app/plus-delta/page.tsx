@@ -9,6 +9,7 @@ import { getPlusDeltaActions, getUserInteractionBattleBeacon } from '../libs/db'
 import { formatTime } from '../util/dateTimeUtil';
 import { ScatterplotLayer } from '@deck.gl/layers';
 import { MapContainer } from '../components/map/map-container';
+import { ActionCard } from '../components/card/action-card';
 
 type DataType = {
     waypoints: {
@@ -93,6 +94,7 @@ export default function Page() {
         const current = index > 0 ? waypoints[index - 1] : waypoints[0];
 
         if (current && current.action) {
+            
             setCurrentInfo({ action: current.action, timestamp: formatTime(current.time, 'Asia/Makassar') });
         }
     }, [currentTime, tripData]);
@@ -205,21 +207,7 @@ export default function Page() {
         (currentInfo && (
             <MapContainer defaultCenter={[-8.710340838, 115.17494434764978]}
                 mapChildren={
-                    <div
-                        style={{
-                            position: 'absolute',
-                            bottom: '2rem',
-                            left: '2rem',
-                            backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                            padding: '1rem 1.5rem',
-                            borderRadius: '1rem',
-                            boxShadow: '0 2px 10px rgba(0,0,0,0.15)',
-                            fontFamily: 'sans-serif',
-                        }}>
-                        <div style={{ fontWeight: 600 }}>Action: {currentInfo.action}</div>
-                        <div>Time: {currentInfo.timestamp}</div>
-                    </div>
-
+                    <ActionCard action={currentInfo.action} timestamp={currentInfo.timestamp} />
                 }
                 mapOverlay={<DeckGLOverlay {...deckProps} />}
             />
