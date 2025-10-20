@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { getActionsRange, getAnomaly, getUserInteractionBattleBeacon } from '../libs/db';
-import { FormControl, FormHelperText, InputLabel, MenuItem, Select, SelectChangeEvent } from '@mui/material';
+import { CircularProgress, FormControl, FormHelperText, InputLabel, MenuItem, Select, SelectChangeEvent } from '@mui/material';
 import { TripDataType } from '../model/tripdata';
 import { useDeckLayers } from '../hooks/useDeckLayers';
 import { formatTime } from '../util/dateTimeUtil';
@@ -149,24 +149,29 @@ export default function Page() {
                     alignItems: 'center',
                     height: '100vh',
                 }}>
-                    <FormControl sx={{ m: 1, minWidth: 400 }}>
-                        <InputLabel id="select-helper-label">Anomaly</InputLabel>
-                        <Select
-                            labelId="select-helper-label"
-                            id="select-helper"
-                            value={anomalyId}
-                            label="Site"
-                            onChange={handleChange}>
-                            {anomaly.map((anomalyValue) => {
-                                return (
-                                    <MenuItem key={anomalyValue.id} value={anomalyValue.id}>
-                                        {anomalyValue.series_name} ({anomalyValue.site})
-                                    </MenuItem>
-                                );
-                            })}
-                        </Select>
-                        <FormHelperText>Select an Anomaly Site</FormHelperText>
-                    </FormControl>
+                    {anomaly.length == 0 && (
+                        <CircularProgress enableTrackSlot size="3rem" />
+                    )}
+                    {anomaly.length > 0 && (
+                        <FormControl sx={{ m: 1, minWidth: 400 }}>
+                            <InputLabel id="select-helper-label">Anomaly</InputLabel>
+                            <Select
+                                labelId="select-helper-label"
+                                id="select-helper"
+                                value={anomalyId}
+                                label="Site"
+                                onChange={handleChange}>
+                                {anomaly.map((anomalyValue) => {
+                                    return (
+                                        <MenuItem key={anomalyValue.id} value={anomalyValue.id}>
+                                            {anomalyValue.series_name} ({anomalyValue.site})
+                                        </MenuItem>
+                                    );
+                                })}
+                            </Select>
+                            <FormHelperText>Select an Anomaly Site</FormHelperText>
+                        </FormControl>
+                    )}
                 </div>
             )}
         </div>
