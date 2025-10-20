@@ -318,7 +318,11 @@ export async function getUserInteractionBattleBeacon(start: Date, end: Date){
 }
 
 export async function getAnomaly(){
-    const anomalyData = await getClient().anomaly.findMany()
+    const anomalyData = await getClient().anomaly.findMany({
+        orderBy: {
+            start_time: 'asc',
+        }
+    })
     const serialized = anomalyData.map((a) => ({
         id: a.id,
         latitude: Number(a.lat),
