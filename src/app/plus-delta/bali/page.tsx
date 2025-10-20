@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useEffect, useState } from 'react';
-import { getPlusDeltaActions, getUserInteractionBattleBeacon } from '../../libs/db';
+import { getActionsRange, getUserInteractionBattleBeacon } from '../../libs/db';
 import { formatTime } from '../../util/dateTimeUtil';
 import { MapContainer } from '../../components/map/map-container';
 import { ActionCard } from '../../components/card/action-card';
@@ -72,12 +72,14 @@ export default function Page() {
 
     // Fetch data
     useEffect(() => {
+        const startDateTime = "2025-09-20T14:00:00+08:00"
+        const endDateTime = "2025-09-20T17:00:00+08:00"
         getUserInteractionBattleBeacon(
-            new Date('2025-09-20T14:00:00+08:00'),
-            new Date('2025-09-20T17:00:00+08:00')
+            new Date(startDateTime),
+            new Date(endDateTime)
         ).then(setBattleBeacons);
 
-        getPlusDeltaActions().then((value) => {
+        getActionsRange(startDateTime, endDateTime).then((value) => {
             if (!value.length) return;
             const formatted: TripDataType[] = [
                 {

@@ -245,12 +245,12 @@ export async function mostModsDeployedDay(){
 }
 
 // This code assumes that the player was at one of the anomaly sites
-export async function getPlusDeltaActions(){
+export async function getActionsRange(startDateTime: string, endDateTime: string){
     const plusThetaActions = await getClient().gamelog.findMany({
         where: {
             event_time: {
-                gte: new Date('2025-09-20T14:00:00+08:00'), 
-                lte: new Date('2025-09-20T17:00:00+08:00'), 
+                gte: new Date(startDateTime), 
+                lte: new Date(endDateTime), 
             },
             // there are some actions such as claiming bounties that result in lat, lon 0,0
             latitude: {
@@ -274,8 +274,6 @@ export async function getPlusDeltaActions(){
         action: a.action,
         comment: a.comment,
     }));
-
-
     return serialized
 }
 
