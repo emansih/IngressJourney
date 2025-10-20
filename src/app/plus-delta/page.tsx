@@ -1,13 +1,14 @@
 'use client'
 
 import React, { useEffect, useMemo, useState } from 'react';
-import { APIProvider, Map, useMap } from '@vis.gl/react-google-maps';
+import { useMap } from '@vis.gl/react-google-maps';
 import { TripsLayer } from '@deck.gl/geo-layers';
 import { GoogleMapsOverlay } from '@deck.gl/google-maps';
 import type { DeckProps, Layer } from '@deck.gl/core';
 import { getPlusDeltaActions, getUserInteractionBattleBeacon } from '../libs/db';
 import { formatTime } from '../util/dateTimeUtil';
 import { ScatterplotLayer } from '@deck.gl/layers';
+import { MapContainer } from '../components/map/map-container';
 
 type DataType = {
     waypoints: {
@@ -33,8 +34,6 @@ function DeckGLOverlay(props: DeckProps) {
 // This code assumes that the user went to the +Delta in Bali
 // https://ingress.com/en/news/2025-plusdelta
 export default function Page() {
-    const mapKey = process.env.NEXT_PUBLIC_MAP_KEY ?? '';
-    const mapId = process.env.NEXT_PUBLIC_MAP_ID ?? '';
 
     const [currentTime, setCurrentTime] = useState(0);
     const [tripData, setTripData] = useState<DataType[]>([])
@@ -203,14 +202,9 @@ export default function Page() {
     }, [tripsLayer, waypointLayer]);
 
     return (
-        <APIProvider apiKey={mapKey}>
-            <DeckGLOverlay {...deckProps} />
-            
-            <Map style={{ width: '100vw', height: '100vh' }}
-                defaultCenter={{ lat: -8.710340838, lng: 115.17494434764978 }}
-                defaultZoom={14}
-                mapId={mapId}>
-                {currentInfo && (
+        (currentInfo && (
+            <MapContainer defaultCenter={[-8.710340838, 115.17494434764978]}
+                mapChildren={
                     <div
                         style={{
                             position: 'absolute',
@@ -226,8 +220,9 @@ export default function Page() {
                         <div>Time: {currentInfo.timestamp}</div>
                     </div>
 
-                )}
-            </Map>
-        </APIProvider>
+                }
+                mapOverlay={<DeckGLOverlay {...deckProps} />}
+            />
+        ))
     );
 }
