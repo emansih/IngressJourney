@@ -204,13 +204,14 @@ export default function Page() {
     }, [tripsLayer, waypointLayer]);
 
     return (
-        (currentInfo && (
+        <>       
             <MapContainer defaultCenter={[-8.710340838, 115.17494434764978]}
                 mapChildren={
-                    <ActionCard action={currentInfo.action} timestamp={currentInfo.timestamp} />
-                }
+                    currentInfo && (
+                        <ActionCard action={currentInfo.action} timestamp={currentInfo.timestamp} />
+                    )}
                 mapOverlay={<DeckGLOverlay {...deckProps} />}
             />
-        ))
+        </>
     );
 }
