@@ -1,16 +1,18 @@
 'use client'
 
 import React, { useEffect, useState } from 'react';
-import { getPlusDeltaActions, getUserInteractionBattleBeacon } from '../libs/db';
-import { formatTime } from '../util/dateTimeUtil';
-import { MapContainer } from '../components/map/map-container';
-import { ActionCard } from '../components/card/action-card';
-import { useDeckLayers } from '../hooks/useDeckLayers';
-import { DeckMap } from '../components/map/deck-map';
-import { TripDataType } from '../model/tripdata';
+import { getPlusDeltaActions, getUserInteractionBattleBeacon } from '../../libs/db';
+import { formatTime } from '../../util/dateTimeUtil';
+import { MapContainer } from '../../components/map/map-container';
+import { ActionCard } from '../../components/card/action-card';
+import { useDeckLayers } from '../../hooks/useDeckLayers';
+import { DeckMap } from '../../components/map/deck-map';
+import { TripDataType } from '../../model/tripdata';
 
 // This code assumes that the user went to the +Delta in Bali
 // https://ingress.com/en/news/2025-plusdelta
+// https://web.archive.org/web/20250000000000*/https://ingress.com/en/news/2025-plusdelta
+
 export default function Page() {
 
     const [currentTime, setCurrentTime] = useState(0);
