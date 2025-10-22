@@ -9,7 +9,8 @@ export default async function Page({
 }) {
 
     const { medalName } = await params
-    const medalData = await getMedal(medalName)
+    const decodedMedalName = decodeURIComponent(medalName)
+    const medalData = await getMedal(decodedMedalName)
     const medalList: MedalData[] = medalData.map(value => ({
         medalName: value.medal_name,
         timeAttained: value.attained_at
