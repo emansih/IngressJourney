@@ -345,3 +345,13 @@ export async function getMedals(){
     })
     return medalData
 }
+
+export async function getDroneHacks(){
+    const droneHacks = await getClient().gamelog.findMany({
+        where: {
+            action: 'drone moved'
+        },
+        distinct: ['latitude', 'longitude'],
+    })
+    return droneHacks
+}
