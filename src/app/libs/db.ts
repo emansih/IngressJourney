@@ -335,3 +335,13 @@ export async function getAnomaly(){
     }));
     return serialized
 }
+
+
+export async function getMedals(){
+    const medalData = await getClient().medals.findMany({
+        orderBy: {
+            attained_at: 'asc'
+        }
+    })
+    return medalData
+}

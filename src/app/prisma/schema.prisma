@@ -109,3 +109,15 @@ model anomaly {
 
   @@schema("public")
 }
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model medals {
+  id            BigInt   @default(autoincrement())
+  attained_at   DateTime @db.Timestamptz(6)
+  medal_name    String   @unique
+  is_vanity     Boolean
+  is_year_badge Boolean
+
+  @@id([id, medal_name])
+  @@schema("public")
+}

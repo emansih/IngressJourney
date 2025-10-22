@@ -108,6 +108,9 @@ export default function PersistentDrawerLeft({ children }: { children: ReactNode
             case 'Anomaly History':
                 router.push('/anomaly')
                 break
+            case 'Medals History': 
+                router.push('medal')
+                break
         }
     }
 
@@ -154,7 +157,7 @@ export default function PersistentDrawerLeft({ children }: { children: ReactNode
                 </DrawerHeader>
                 <Divider />
                 <List>
-                    {['Portal History', 'Recursion History', 'Top Statistics', 'Anomaly History'].map((text) => (
+                    {['Portal History', 'Recursion History', 'Anomaly History', 'Medals History', 'Top Statistics'].map((text) => (
                         <ListItem key={text} disablePadding>
                             <ListItemButton onClick={() => handleDrawerItemClick(text)}>
                                 <ListItemText primary={text} />
