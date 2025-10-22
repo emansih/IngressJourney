@@ -1,3 +1,4 @@
+"use client"
 
 import { formatDate } from "@/app/util/dateTimeUtil";
 import { Timeline, TimelineConnector, TimelineContent, TimelineDot, TimelineItem, TimelineOppositeContent, TimelineSeparator } from "@mui/lab";
