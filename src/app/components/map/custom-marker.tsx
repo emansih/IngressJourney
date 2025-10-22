@@ -9,12 +9,14 @@ interface Props {
     entity: Portal;
     isOpen: boolean;
     onToggle: () => void;
+    heading: string
 }
 
 export const CustomAdvancedMarker: FunctionComponent<Props> = ({
     entity,
     isOpen,
-    onToggle
+    onToggle,
+    heading
 }) => {
     const [hovered, setHovered] = useState(false);
     const position = useMemo(() => ({
@@ -41,7 +43,7 @@ export const CustomAdvancedMarker: FunctionComponent<Props> = ({
             {isOpen && (
                 <InfoWindow position={position} onCloseClick={onToggle}>
                     <div className="popup">
-                        <div className="heading">Captured</div>
+                        <div className="heading">{heading}</div>
                         <div>{formatDate(entity.first_seen_time)}</div>
                         <div>{entity.lat}, {entity.lon}</div>
                     </div>

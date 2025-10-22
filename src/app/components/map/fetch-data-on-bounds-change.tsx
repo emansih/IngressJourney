@@ -54,6 +54,7 @@ export function FetchDataOnBoundsChange() {
                     entity={entity}
                     isOpen={openId === idx}
                     onToggle={() => setOpenId(openId === idx ? null : idx)}
+                    heading={'Captured'}
                 />
             ))}
         </>

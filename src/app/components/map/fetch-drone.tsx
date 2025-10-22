@@ -20,6 +20,7 @@ export function FetchDrone({ portalList }: { portalList: Portal[] }){
                     }}
                     isOpen={openId === idx}
                     onToggle={() => setOpenId(openId === idx ? null : idx)}
+                    heading={'Drone Visited'}
                 />
             ))}
            
