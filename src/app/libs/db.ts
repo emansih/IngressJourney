@@ -3,7 +3,7 @@
 import { PrismaPg } from "@prisma/adapter-pg"
 import { PrismaClient } from "../model/generated/prisma/client"
 import { TimelineBlock } from "../model/recursion"
-import { maxed_xm_recharge, most_captured_portal, most_captured_portal_day, most_created_field_day, most_deployed_resonator_day, most_destroyed_resonator_day, most_link_created_day, most_mods_deployed_day } from "../model/generated/prisma/sql"
+import { drone_hack_bounding_box, maxed_xm_recharge, most_captured_portal, most_captured_portal_day, most_created_field_day, most_deployed_resonator_day, most_destroyed_resonator_day, most_link_created_day, most_mods_deployed_day } from "../model/generated/prisma/sql"
 
 
 function getClient() {
@@ -354,4 +354,9 @@ export async function getDroneHacks(){
         distinct: ['latitude', 'longitude'],
     })
     return droneHacks
+}
+
+export async function getDroneInBoundingBox(topLeftLat: number, topLeftLon: number, bottomRightLat: number, bottomRightLon: number){    
+    const droneHacksInBox = await getClient().$queryRawTyped(drone_hack_bounding_box(topLeftLon, topLeftLat, bottomRightLon, bottomRightLat))
+    return droneHacksInBox
 }
