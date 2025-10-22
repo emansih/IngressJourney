@@ -1,9 +1,11 @@
 
 import { formatDate } from "@/app/util/dateTimeUtil";
 import { Timeline, TimelineConnector, TimelineContent, TimelineDot, TimelineItem, TimelineOppositeContent, TimelineSeparator } from "@mui/lab";
+import Link from 'next/link'
 
 
 export function MedalsTimeline({ medalList }: { medalList: MedalData[] }) {
+    
 
     return (
         <Timeline>
@@ -16,7 +18,12 @@ export function MedalsTimeline({ medalList }: { medalList: MedalData[] }) {
                         <TimelineDot color="primary" />
                         <TimelineConnector />
                     </TimelineSeparator>
-                    <TimelineContent>{medal.medalName}</TimelineContent>
+                    <TimelineContent>
+                        <Link href={`/medal/${medal.medalName.split(' ').slice(1).join(' ')}`}
+                            style={{ color: '#1976d2', textDecoration: 'underline', cursor: 'pointer' }}>
+                            {medal.medalName}
+                        </Link>
+                    </TimelineContent>
                 </TimelineItem>
             ))}
         </Timeline>

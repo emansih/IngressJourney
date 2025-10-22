@@ -346,6 +346,22 @@ export async function getMedals(){
     return medalData
 }
 
+export async function getMedal(medalName: string) {
+    const medalData = await getClient().medals.findMany({
+        where: {
+            medal_name: {
+                contains: medalName,
+                mode: 'insensitive',
+            },
+        },
+        orderBy: {
+            attained_at: 'asc'
+        }
+    })
+    return medalData
+}
+
+
 export async function getDroneHacks(){
     const droneHacks = await getClient().gamelog.findMany({
         where: {
