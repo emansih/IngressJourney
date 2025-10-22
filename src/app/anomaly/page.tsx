@@ -105,9 +105,21 @@ export default function Page() {
 
             getActionsRange(startTime, endTime).then((value) => {
                 if (!value.length) return;
+                const filtered = value.filter((item, index, arr) => {
+                    // Remove 'drone moved' itself
+                    if (item.action === 'drone moved') return false;
+
+                    // Remove 'hacked friendly portal' if it directly follows a 'drone moved'
+                    const prev = arr[index - 1];
+                    if (prev && prev.action === 'drone moved' && item.action === 'hacked friendly portal') {
+                        return false;
+                    }
+
+                    return true;
+                });
                 const formatted: TripDataType[] = [
                     {
-                        waypoints: value.map(item => ({
+                        waypoints: filtered.map(item => ({
                             coordinates: [item.longitude, item.latitude],
                             timestamp: item.event_number,
                             action: item.action,
