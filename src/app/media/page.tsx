@@ -10,24 +10,46 @@ export default async function Page() {
     media.map((value) => {
         mediaItem.push(value.comment?.replace('Dropped Media Item: ', '') ?? '')
     })
-
     const getYouTubeEmbedUrl = (url: string): string | null => {
         try {
             const parsed = new URL(url);
-            if (
-                parsed.hostname === 'youtu.be' ||
-                parsed.hostname.includes('youtube.com')
-            ) {
-                const videoId =
-                    parsed.hostname === 'youtu.be'
-                        ? parsed.pathname.slice(1)
-                        : parsed.searchParams.get('v');
-                if (videoId) {
-                    return `https://www.youtube.com/embed/${videoId}`;
-                }
+
+            if (!parsed.hostname.includes('youtube.com') && parsed.hostname !== 'youtu.be') {
+                return null;
             }
+
+            // Short form: https://youtu.be/{id}
+            if (parsed.hostname === 'youtu.be') {
+                const videoId = parsed.pathname.slice(1);
+                return `https://www.youtube.com/embed/${videoId}`;
+            }
+
+            // Standard form: https://www.youtube.com/watch?v={id}
+            const vParam = parsed.searchParams.get('v');
+            if (vParam) {
+                return `https://www.youtube.com/embed/${vParam}`;
+            }
+
+            // Non-standard form: https://www.youtube.com/watch/{id}
+            const watchMatch = parsed.pathname.match(/^\/watch\/([^/?#]+)/);
+            if (watchMatch) {
+                return `https://www.youtube.com/embed/${watchMatch[1]}`;
+            }
+
+            // Shorts: https://www.youtube.com/shorts/{id}
+            const shortsMatch = parsed.pathname.match(/^\/shorts\/([^/?#]+)/);
+            if (shortsMatch) {
+                return `https://www.youtube.com/embed/${shortsMatch[1]}`;
+            }
+
+            // Already an embed link
+            const embedMatch = parsed.pathname.match(/^\/embed\/([^/?#]+)/);
+            if (embedMatch) {
+                return url;
+            }
+
         } catch (e) {
-            // invalid URL
+            // invalid URL, ignore
         }
         return null;
     };
