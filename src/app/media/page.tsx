@@ -1,14 +1,21 @@
-import { ImageList, ImageListItem } from "@mui/material"
+import { ImageList, ImageListItem, ImageListItemBar } from "@mui/material"
 import { getAttainedMedia } from "../libs/db"
+import { formatDate } from "../util/dateTimeUtil"
 
-
+type MediaItems = {
+    mediaUrl: string,
+    mediaAttainedAt: Date
+}
 
 export default async function Page() {
 
     const media = await getAttainedMedia()
-    const mediaItem: string[] = []
+    const mediaItem: MediaItems[] = []
     media.map((value) => {
-        mediaItem.push(value.comment?.replace('Dropped Media Item: ', '') ?? '')
+        mediaItem.push({
+            mediaUrl: value.comment?.replace('Dropped Media Item: ', '') ?? '',
+            mediaAttainedAt: value.event_time
+        })
     })
     const getYouTubeEmbedUrl = (url: string): string | null => {
         try {
@@ -58,7 +65,7 @@ export default async function Page() {
     return (
         <ImageList cols={3}>
             {mediaItem.map((item, index) => {
-                const embedUrl = getYouTubeEmbedUrl(item);
+                const embedUrl = getYouTubeEmbedUrl(item.mediaUrl);
                 return (
                     <ImageListItem key={index}>
                         {embedUrl ? (
@@ -71,10 +78,14 @@ export default async function Page() {
                             />
                         ) : (
                             <img
-                                src={item}
+                                src={item.mediaUrl}
                                 loading="lazy"
                             />
                         )}
+                        <ImageListItemBar
+                            title={`Obtained on ${formatDate(item.mediaAttainedAt) }`}
+                            position="below"
+                        />
                     </ImageListItem>
                 );
             })}
