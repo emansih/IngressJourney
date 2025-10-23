@@ -15,7 +15,6 @@ export default function Loading() {
             }}
         >
             <CircularProgress />
-            <Typography>Loading top statistics...</Typography>
         </Box>
     )
 }

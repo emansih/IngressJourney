@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { getActionsRange, getAnomaly, getUserInteractionBattleBeacon } from '../libs/db';
-import { Box, Card, CardActionArea, CardContent, CardMedia, CircularProgress, FormControl, FormHelperText, Grid, InputLabel, MenuItem, Select, SelectChangeEvent, Typography } from '@mui/material';
+import { Box, Card, CardActionArea, CardContent, CardMedia, Grid, Typography } from '@mui/material';
 import { TripDataType } from '../model/tripdata';
 import { useDeckLayers } from '../hooks/useDeckLayers';
 import { formatDateWithoutTime, formatTime } from '../util/dateTimeUtil';
@@ -153,18 +153,6 @@ export default function Page() {
                     mapOverlay={<DeckMap layers={layers} />}
                 />
             )}
-
-            {anomaly.length == 0 && (
-                <div style={{
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    height: '100vh',
-                }}>
-                    <CircularProgress enableTrackSlot size="3rem" />
-                </div>
-            )}
-            
             {anomalyId == '' && (
                 <div>
                     <Box sx={{ flexGrow: 1, ml: 4, mr: 4, mt: 4, mb: 4 }}>
