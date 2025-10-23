@@ -106,6 +106,7 @@ model anomaly {
   site        String
   start_time  DateTime @db.Timestamptz(6)
   end_time    DateTime @db.Timestamptz(6)
+  cover_photo String?
 
   @@schema("public")
 }

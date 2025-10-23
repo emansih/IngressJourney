@@ -331,7 +331,8 @@ export async function getAnomaly(){
         series_name: a.series_name,
         site: a.site,
         start_time: a.start_time,
-        end_time: a.end_time
+        end_time: a.end_time,
+        cover_photo: a.cover_photo
     }));
     return serialized
 }

@@ -2,10 +2,10 @@
 
 import { useEffect, useState } from 'react';
 import { getActionsRange, getAnomaly, getUserInteractionBattleBeacon } from '../libs/db';
-import { CircularProgress, FormControl, FormHelperText, InputLabel, MenuItem, Select, SelectChangeEvent } from '@mui/material';
+import { Box, Card, CardActionArea, CardContent, CardMedia, CircularProgress, FormControl, FormHelperText, Grid, InputLabel, MenuItem, Select, SelectChangeEvent, Typography } from '@mui/material';
 import { TripDataType } from '../model/tripdata';
 import { useDeckLayers } from '../hooks/useDeckLayers';
-import { formatTime } from '../util/dateTimeUtil';
+import { formatDateWithoutTime, formatTime } from '../util/dateTimeUtil';
 import { ActionCard } from '../components/card/action-card';
 import { DeckMap } from '../components/map/deck-map';
 import { MapContainer } from '../components/map/map-container';
@@ -18,7 +18,8 @@ type AnomalyData = {
     series_name: string,
     site: string,
     start_time: Date,
-    end_time: Date
+    end_time: Date,
+    cover_photo: string | null
 }
 
 export default function Page() {
@@ -37,8 +38,7 @@ export default function Page() {
     const [battleBeacons, setBattleBeacons] = useState<LatLng[]>([]);
     const [defaultCenter, setDefaultCenter] = useState<LatLng>()
 
-    const handleChange = (event: SelectChangeEvent) => {
-        const anomId = event.target.value
+    const handleChange = (anomId: string) => {
         setAnomalyId(anomId);
         const filteredAnom = anomaly.filter((value) => value.id == anomId)[0]
         setTimeZone(filteredAnom.timezone)
@@ -153,38 +153,51 @@ export default function Page() {
                     mapOverlay={<DeckMap layers={layers} />}
                 />
             )}
-            
-            {anomalyId == '' && (
+
+            {anomaly.length == 0 && (
                 <div style={{
                     display: 'flex',
                     justifyContent: 'center',
                     alignItems: 'center',
                     height: '100vh',
                 }}>
-                    {anomaly.length == 0 && (
-                        <CircularProgress enableTrackSlot size="3rem" />
-                    )}
-                    {anomaly.length > 0 && (
-                        <FormControl sx={{ m: 1, minWidth: 400 }}>
-                            <InputLabel id="select-helper-label">Anomaly</InputLabel>
-                            <Select
-                                labelId="select-helper-label"
-                                id="select-helper"
-                                value={anomalyId}
-                                label="Site"
-                                onChange={handleChange}>
-                                {anomaly.map((anomalyValue) => {
-                                    return (
-                                        <MenuItem key={anomalyValue.id} value={anomalyValue.id}>
-                                            {anomalyValue.series_name} ({anomalyValue.site})
-                                        </MenuItem>
-                                    );
-                                })}
-                            </Select>
-                            <FormHelperText>Select an Anomaly Site</FormHelperText>
-                        </FormControl>
-                    )}
+                    <CircularProgress enableTrackSlot size="3rem" />
                 </div>
+            )}
+            
+            {anomalyId == '' && (
+                <div>
+                    <Box sx={{ flexGrow: 1, ml: 4, mr: 4, mt: 4, mb: 4 }}>
+                        <Grid container spacing={{ xs: 2, md: 3 }} columns={{ xs: 4, sm: 8, md: 12 }}>
+                            {anomaly.map((item, index) => (
+                                <Grid key={index} size={{ xs: 2, sm: 4, md: 4 }}>
+                                    <Card key={index}>
+                                        <CardActionArea onClick={() => {
+                                            handleChange(item.id)
+                                        }}>
+                                            <CardMedia
+                                                component="img"
+                                                height="200"
+                                                image={item.cover_photo ?? '/marker-blue.png'}
+                                            />
+                                            <CardContent>
+                                                <Typography gutterBottom variant="h5" component="div">
+                                                    {item.series_name}
+                                                </Typography>
+                                                <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                                                    {item.site} - {formatDateWithoutTime(item.start_time)}
+                                                </Typography>
+                                            </CardContent>
+                                        </CardActionArea>
+                                    </Card>
+
+                                </Grid>
+                            ))}
+                        </Grid>
+                    </Box>
+                    
+                </div>
+
             )}
         </div>
        
