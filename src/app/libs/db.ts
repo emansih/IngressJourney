@@ -377,3 +377,19 @@ export async function getDroneInBoundingBox(topLeftLat: number, topLeftLon: numb
     const droneHacksInBox = await getClient().$queryRawTyped(drone_hack_bounding_box(topLeftLon, topLeftLat, bottomRightLon, bottomRightLat))
     return droneHacksInBox
 }
+
+export async function getAttainedMedia(){
+    const mediaItems = await getClient().gamelog.findMany({
+        where: {
+            comment: {
+                contains: 'Dropped Media Item:',
+                mode: 'insensitive',
+            }
+        },
+        orderBy: {
+            event_time: 'asc',
+        },
+        distinct: ['comment'],
+    })
+    return mediaItems
+}
