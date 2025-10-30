@@ -3,7 +3,7 @@ import { Divider } from "@mui/material";
 import Typography from "@mui/material/Typography";
 
 
-export function MostCreatedFieldLink({ linkCreated, linkCreatedDate, fieldsCreated, fieldCreatedDate }: { linkCreated: bigint, linkCreatedDate: Date, fieldsCreated: bigint, fieldCreatedDate: Date }) {
+export function MostCreatedFieldLink({ linkCreated, linkCreatedDate, fieldsCreated, fieldCreatedDate }: { linkCreated: number, linkCreatedDate: Date, fieldsCreated: number, fieldCreatedDate: Date }) {
 
     return (
         <>

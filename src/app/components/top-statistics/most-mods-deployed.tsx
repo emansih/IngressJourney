@@ -2,7 +2,7 @@ import { formatDateWithoutTime } from "@/app/util/dateTimeUtil";
 import Typography from "@mui/material/Typography";
 
 
-export function MostModsDeployed({ modsDeployed, date }: { modsDeployed: bigint, date: Date }) {
+export function MostModsDeployed({ modsDeployed, date }: { modsDeployed: number, date: Date }) {
 
 
     return (

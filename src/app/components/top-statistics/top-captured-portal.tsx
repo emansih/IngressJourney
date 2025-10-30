@@ -4,7 +4,13 @@ import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import MapEmbed from "../map/map-embed";
 
-export function TopCapturedPortal({ capturedPortalResult }: { capturedPortalResult: most_captured_portal.Result[] }){
+type TopCapturedResults = {
+    latitude: number | null
+    longitude: number | null
+    occurrences: number | null
+}
+
+export function TopCapturedPortal({ capturedPortalResult }: { capturedPortalResult: TopCapturedResults[] }){
 
     return (
         <>

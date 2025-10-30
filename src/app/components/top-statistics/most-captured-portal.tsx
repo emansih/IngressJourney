@@ -2,7 +2,7 @@ import { formatDateWithoutTime } from "@/app/util/dateTimeUtil";
 import Typography from "@mui/material/Typography";
 
 
-export function MostCapturedPortal({ portalCount, date }: { portalCount: bigint,  date: Date }){
+export function MostCapturedPortal({ portalCount, date }: { portalCount: number,  date: Date }){
 
     return (
         <>

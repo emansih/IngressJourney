@@ -6,7 +6,7 @@ import Typography from "@mui/material/Typography";
 
 
 export function MostDeplyedDestroyedReso({ resosDeployed, resosDeployedDate, resosDestroyed, resosDestroyedDate }: 
-    { resosDeployed: bigint, resosDeployedDate: Date, resosDestroyed: bigint, resosDestroyedDate: Date }) {
+    { resosDeployed: number, resosDeployedDate: Date, resosDestroyed: number, resosDestroyedDate: Date }) {
 
     return (
         <>
