@@ -1,10 +1,11 @@
 
 
 
-export function formatDate(date: Date) {
+export function formatDate(date: Date | string) {
+    const newDate = new Date(date)
     const options: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'long', year: 'numeric' };
-    const datePart = date.toLocaleDateString('en-GB', options);
-    const timePart = date.toLocaleTimeString('en-GB', { hour12: true });
+    const datePart = newDate.toLocaleDateString('en-GB', options);
+    const timePart = newDate.toLocaleTimeString('en-GB', { hour12: true });
     return `${datePart} ${timePart}`;
 }
 
