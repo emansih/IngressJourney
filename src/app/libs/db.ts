@@ -362,20 +362,14 @@ export async function getMedal(medalName: string) {
     return medalData
 }
 
-
-export async function getDroneHacks(){
-    const droneHacks = await getClient().gamelog.findMany({
-        where: {
-            action: 'drone moved'
-        },
-        distinct: ['latitude', 'longitude'],
-    })
-    return droneHacks
-}
-
 export async function getDroneInBoundingBox(topLeftLat: number, topLeftLon: number, bottomRightLat: number, bottomRightLon: number){    
     const droneHacksInBox = await getClient().$queryRawTyped(drone_hack_bounding_box(topLeftLon, topLeftLat, bottomRightLon, bottomRightLat))
-    return droneHacksInBox
+    const serialized = droneHacksInBox.map(result => ({
+        lat: Number(result.latitude),
+        lon: Number(result.longitude),
+        first_seen_time: result.event_time
+    }))
+    return serialized
 }
 
 export async function getAttainedMedia(){
