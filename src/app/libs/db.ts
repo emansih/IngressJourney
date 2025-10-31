@@ -366,58 +366,64 @@ export async function getMedal(medalName: string) {
     return medalData
 }
 
-export async function getDroneInBoundingBox(topLeftLat: number, topLeftLon: number, bottomRightLat: number, bottomRightLon: number){    
-    
-    const droneHacksInBox = await getClient().$queryRawTyped(
-        drone_hack_bounding_box(topLeftLon, topLeftLat, bottomRightLon, bottomRightLat)
-    );
-    
-    // Requires ESM2020
-    const nextIds = droneHacksInBox.map(v => (BigInt(v.id) + 1n));
-    const nextHacks = await getClient().gamelog.findMany({
-        where: { id: { in: nextIds } }
-    });
+export async function getDroneHacks(topLeftLat: number | null, topLeftLon: number | null, bottomRightLat: number | null, bottomRightLon: number | null) {
 
-    const droneHack = nextHacks
-        .filter(h => h.action.startsWith('hacked'))
-        .map(h => ({
-            lat: Number(h.latitude),
-            lon: Number(h.longitude),
-            first_seen_time: h.event_time
-        }));
-    
-    return droneHack
-}
-
-export async function getAllDrone() {
-
-    const droneHacksInBox = await getClient().gamelog.findMany({
-        where: {
-            action: 'drone moved'
-        }
-    })
-
-    // Requires ESM2020
-    const nextIds = droneHacksInBox.map(v => (BigInt(v.id) + 1n));
-    const nextHacks = await getClient().gamelog.findMany({
-        where: { id: { in: nextIds } }
-    });
-
-    const droneHack = nextHacks
-        .filter(h => h.action.startsWith('hacked'))
-        .map(h => ({
-            id: Number(h.id),
-            lat: Number(h.latitude),
-            lon: Number(h.longitude),
-            first_seen_time: h.event_time
-        }));
-
+    let droneHacks: {
+        id: bigint
+        latitude: number
+        longitude: number
+        event_time: Date
+    }[] = []
     const unique = new Map();
-    for (const d of droneHack) {
-        const key = `${d.lat},${d.lon}`;
-        if (!unique.has(key)) unique.set(key, d);
+    if(topLeftLat && topLeftLon && bottomRightLat && bottomRightLon){
+        const droneHackQuery = await getClient().$queryRawTyped(
+            drone_hack_bounding_box(topLeftLon, topLeftLat, bottomRightLon, bottomRightLat)
+        );
+        droneHackQuery.map((value) => {
+            droneHacks.push({
+                id: value.id,
+                latitude: Number(value.latitude),
+                longitude: Number(value.longitude),
+                event_time: value.event_time
+            })
+        })
+    } else {
+        const droneHackQuery = await getClient().gamelog.findMany({
+            where: {
+                action: 'drone moved'
+            }
+        })
+        droneHackQuery.map((value) => {
+            droneHacks.push({
+                id: value.id,
+                latitude: Number(value.latitude),
+                longitude: Number(value.longitude),
+                event_time: value.event_time
+            })
+        })
     }
 
+   if(droneHacks.length > 0){
+       // Requires ESM2020
+       const nextIds = droneHacks.map(v => (BigInt(v.id) + 1n));
+       const nextHacks = await getClient().gamelog.findMany({
+           where: { id: { in: nextIds } }
+       });
+
+       const droneHack = nextHacks
+           .filter(h => h.action.startsWith('hacked'))
+           .map(h => ({
+               id: Number(h.id),
+               lat: Number(h.latitude),
+               lon: Number(h.longitude),
+               first_seen_time: h.event_time
+           }));
+
+       for (const d of droneHack) {
+           const key = `${d.lat},${d.lon}`;
+           if (!unique.has(key)) unique.set(key, d);
+       }
+   }   
     return Array.from(unique.values());
 }
 

@@ -1,4 +1,4 @@
-import { getDroneInBoundingBox } from "@/app/libs/db";
+import { getDroneHacks } from "@/app/libs/db";
 
 const CORS_HEADERS = {
     "Access-Control-Allow-Origin": "https://intel.ingress.com",
@@ -16,10 +16,11 @@ export async function OPTIONS() {
 export async function POST(request: Request) {
     const body = await request.json();
     const { topLeftLat, topLeftLon, bottomRightLat, bottomRightLon } = body;
-    const droneHacks = await getDroneInBoundingBox(topLeftLat, topLeftLon, bottomRightLat, bottomRightLon)
+    const droneHacks = await getDroneHacks(topLeftLat, topLeftLon, bottomRightLat, bottomRightLon)
     const portals: Portal[] = []
-    droneHacks.map((value) => {
+    droneHacks.map((value, index) => {
         portals.push({
+            id: index,
             lat: Number(value.latitude),
             lon: Number(value.longitude),
             first_seen_time: value.event_time
