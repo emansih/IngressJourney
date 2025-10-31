@@ -412,7 +412,13 @@ export async function getAllDrone() {
             first_seen_time: h.event_time
         }));
 
-    return droneHack
+    const unique = new Map();
+    for (const d of droneHack) {
+        const key = `${d.lat},${d.lon}`;
+        if (!unique.has(key)) unique.set(key, d);
+    }
+
+    return Array.from(unique.values());
 }
 
 
