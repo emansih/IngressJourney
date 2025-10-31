@@ -5,12 +5,14 @@ import { AdvancedMarker, InfoWindow } from '@vis.gl/react-google-maps';
 import Image from 'next/image';
 import React, { FunctionComponent, useCallback, useMemo, useState } from 'react';
 import type { Marker } from '@googlemaps/markerclusterer';
+import { Pois } from '@/app/model/lightshipresponse';
 
 interface Props {
     entity: Portal;
     isOpen: boolean;
     onToggle: () => void;
-    heading: string
+    heading: string;
+    poiAtrributes: Pois | undefined,
     setMarkerRef: (marker: Marker | null, key: number) => void;
 }
 
@@ -19,6 +21,7 @@ export const CustomAdvancedMarker: FunctionComponent<Props> = ({
     isOpen,
     onToggle,
     heading,
+    poiAtrributes,
     setMarkerRef
 }) => {
     const [hovered, setHovered] = useState(false);
@@ -52,6 +55,16 @@ export const CustomAdvancedMarker: FunctionComponent<Props> = ({
             {isOpen && (
                 <InfoWindow position={position} onCloseClick={onToggle}>
                     <div className="popup">
+                        {
+                            poiAtrributes && poiAtrributes.images && (
+                                <Image
+                                    src={poiAtrributes.images[0].url ?? ""}
+                                    alt="POI Image"
+                                    width={200}
+                                    height={250}
+                                />
+                            )
+                        }
                         <div className="heading">{heading}</div>
                         <div>{formatDate(entity.first_seen_time)}</div>
                         <div>{entity.lat}, {entity.lon}</div>
