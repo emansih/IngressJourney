@@ -3,31 +3,40 @@
 import { formatDate } from '@/app/util/dateTimeUtil';
 import { AdvancedMarker, InfoWindow } from '@vis.gl/react-google-maps';
 import Image from 'next/image';
-import React, { FunctionComponent, useMemo, useState } from 'react';
+import React, { FunctionComponent, useCallback, useMemo, useState } from 'react';
+import type { Marker } from '@googlemaps/markerclusterer';
 
 interface Props {
     entity: Portal;
     isOpen: boolean;
     onToggle: () => void;
     heading: string
+    setMarkerRef: (marker: Marker | null, key: number) => void;
 }
 
 export const CustomAdvancedMarker: FunctionComponent<Props> = ({
     entity,
     isOpen,
     onToggle,
-    heading
+    heading,
+    setMarkerRef
 }) => {
     const [hovered, setHovered] = useState(false);
     const position = useMemo(() => ({
         lat: entity.lat,
         lng: entity.lon
     }), [entity.lat, entity.lon]);
+    const ref = useCallback(
+        (marker: google.maps.marker.AdvancedMarkerElement) =>
+            setMarkerRef(marker, entity.id ?? 0),
+        [setMarkerRef, entity.id]
+    );
 
     return (
         <>
             <AdvancedMarker
                 position={position}
+                ref={ref} 
                 onClick={onToggle}
                 onMouseEnter={() => setHovered(true)}
                 onMouseLeave={() => setHovered(false)}

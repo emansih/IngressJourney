@@ -1,15 +1,18 @@
 "use client"
 
 import { useMap } from "@vis.gl/react-google-maps";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { CustomAdvancedMarker } from "./custom-marker";
 import { getCapturedPortals } from "@/app/libs/db";
+import { Marker, MarkerClusterer } from "@googlemaps/markerclusterer";
 
 export function FetchDataOnBoundsChange() {
     const map = useMap();
     const [entities, setEntities] = useState<Portal[]>([]);
     const [openId, setOpenId] = useState<number | null>(null);
     const debounceTimer = useRef<NodeJS.Timeout | null>(null);
+    const [markers, setMarkers] = useState<{ [key: string]: Marker }>({});
+    
     const DEBOUNCE_TIME = 2000
 
     useEffect(() => {
@@ -46,6 +49,35 @@ export function FetchDataOnBoundsChange() {
 
     }, [map]);
 
+
+    const clusterer = useMemo(() => {
+        if (!map) return null;
+
+        return new MarkerClusterer({ map });
+    }, [map]);
+
+    useEffect(() => {
+        if (!clusterer) return;
+
+        clusterer.clearMarkers();
+        clusterer.addMarkers(Object.values(markers));
+    }, [clusterer, markers]);
+
+    const setMarkerRef = useCallback((marker: Marker | null, key: number) => {
+        setMarkers(markers => {
+            if ((marker && markers[key]) || (!marker && !markers[key]))
+                return markers;
+
+            if (marker) {
+                return { ...markers, [key]: marker };
+            } else {
+                const { [key]: _, ...newMarkers } = markers;
+
+                return newMarkers;
+            }
+        });
+    }, []);
+
     return (
         <>
             {entities.map((entity, idx) => (
@@ -53,6 +85,7 @@ export function FetchDataOnBoundsChange() {
                     key={idx}
                     entity={entity}
                     isOpen={openId === idx}
+                    setMarkerRef={setMarkerRef}
                     onToggle={() => setOpenId(openId === idx ? null : idx)}
                     heading={'Captured'}
                 />

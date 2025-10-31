@@ -17,6 +17,7 @@ function getClient() {
 export async function getCapturedPortals(minLong: number, minLat: number, maxLong: number, maxLat: number): Promise<Portal[]> {
     const result: Portal[] = await getClient().$queryRaw`
         SELECT DISTINCT ON ("latitude", "longitude")
+       "id" as id,
        "latitude" AS lat,
        "longitude" AS lon,
        "event_time" AS first_seen_time
@@ -32,6 +33,7 @@ WHERE "action" = 'captured portal'
 ORDER BY "latitude", "longitude", "event_time" ASC;
     `
     return result.map(r => ({
+        id: r.id,
         lat: Number(r.lat),
         lon: Number(r.lon),
         first_seen_time: r.first_seen_time,
@@ -43,6 +45,7 @@ ORDER BY "latitude", "longitude", "event_time" ASC;
 export async function getCapturedTimeRange(startDate: string, endDate: string): Promise<Portal[]> {
     const result: Portal[] = await getClient().$queryRaw`
        SELECT DISTINCT ON (gl."latitude", gl."longitude")
+       "id" as id,
        "latitude" AS lat,
        "longitude" AS lon,
        "event_time" AS first_seen_time
@@ -51,6 +54,7 @@ WHERE gl."event_time" BETWEEN ${startDate} AND ${endDate} and "action" = 'captur
 ORDER BY gl."latitude", gl."longitude", gl."event_time" ASC;
     `
     return result.map(r => ({
+        id: r.id,
         lat: Number(r.lat),
         lon: Number(r.lon),
         first_seen_time: r.first_seen_time,
@@ -384,6 +388,33 @@ export async function getDroneInBoundingBox(topLeftLat: number, topLeftLon: numb
     
     return droneHack
 }
+
+export async function getAllDrone() {
+
+    const droneHacksInBox = await getClient().gamelog.findMany({
+        where: {
+            action: 'drone moved'
+        }
+    })
+
+    // Requires ESM2020
+    const nextIds = droneHacksInBox.map(v => (BigInt(v.id) + 1n));
+    const nextHacks = await getClient().gamelog.findMany({
+        where: { id: { in: nextIds } }
+    });
+
+    const droneHack = nextHacks
+        .filter(h => h.action.startsWith('hacked'))
+        .map(h => ({
+            id: Number(h.id),
+            lat: Number(h.latitude),
+            lon: Number(h.longitude),
+            first_seen_time: h.event_time
+        }));
+
+    return droneHack
+}
+
 
 export async function getAttainedMedia(){
     const mediaItems = await getClient().gamelog.findMany({
