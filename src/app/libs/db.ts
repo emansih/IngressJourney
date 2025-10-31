@@ -363,13 +363,26 @@ export async function getMedal(medalName: string) {
 }
 
 export async function getDroneInBoundingBox(topLeftLat: number, topLeftLon: number, bottomRightLat: number, bottomRightLon: number){    
-    const droneHacksInBox = await getClient().$queryRawTyped(drone_hack_bounding_box(topLeftLon, topLeftLat, bottomRightLon, bottomRightLat))
-    const serialized = droneHacksInBox.map(result => ({
-        lat: Number(result.latitude),
-        lon: Number(result.longitude),
-        first_seen_time: result.event_time
-    }))
-    return serialized
+    
+    const droneHacksInBox = await getClient().$queryRawTyped(
+        drone_hack_bounding_box(topLeftLon, topLeftLat, bottomRightLon, bottomRightLat)
+    );
+    
+    // Requires ESM2020
+    const nextIds = droneHacksInBox.map(v => (BigInt(v.id) + 1n));
+    const nextHacks = await getClient().gamelog.findMany({
+        where: { id: { in: nextIds } }
+    });
+
+    const droneHack = nextHacks
+        .filter(h => h.action.startsWith('hacked'))
+        .map(h => ({
+            lat: Number(h.latitude),
+            lon: Number(h.longitude),
+            first_seen_time: h.event_time
+        }));
+    
+    return droneHack
 }
 
 export async function getAttainedMedia(){

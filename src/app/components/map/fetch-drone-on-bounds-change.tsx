@@ -20,11 +20,8 @@ export function FetchDroneOnBoundsChange() {
         const fetchData = async (bounds: google.maps.LatLngBounds) => {
             const ne = bounds.getNorthEast().toJSON();
             const sw = bounds.getSouthWest().toJSON();
-            getDroneInBoundingBox(sw.lat, sw.lng, ne.lat, ne.lng).then(value => {
-                value.map(result => {
-                    setEntities((prevEntities) => [...prevEntities, result]);
-                })
-            })
+            const value = await getDroneInBoundingBox(ne.lat, sw.lng, sw.lat, ne.lng);
+            setEntities(prev => [...prev, ...value]);
         };
 
         // Run when map moves/zooms
