@@ -3,7 +3,7 @@
 import { PrismaPg } from "@prisma/adapter-pg"
 import { PrismaClient } from "../model/generated/prisma/client"
 import { TimelineBlock } from "../model/recursion"
-import { drone_hack_bounding_box, maxed_xm_recharge, most_captured_portal, most_captured_portal_day, most_created_field_day, most_deployed_resonator_day, most_destroyed_resonator_day, most_link_created_day, most_mods_deployed_day } from "../model/generated/prisma/sql"
+import { drone_hack, drone_hack_bounding_box, maxed_xm_recharge, most_captured_portal, most_captured_portal_day, most_created_field_day, most_deployed_resonator_day, most_destroyed_resonator_day, most_link_created_day, most_mods_deployed_day } from "../model/generated/prisma/sql"
 
 
 function getClient() {
@@ -367,64 +367,20 @@ export async function getMedal(medalName: string) {
 }
 
 export async function getDroneHacks(topLeftLat: number | null, topLeftLon: number | null, bottomRightLat: number | null, bottomRightLon: number | null) {
+    const client = getClient();
 
-    let droneHacks: {
-        id: bigint
-        latitude: number
-        longitude: number
-        event_time: Date
-    }[] = []
-    const unique = new Map();
-    if(topLeftLat && topLeftLon && bottomRightLat && bottomRightLon){
-        const droneHackQuery = await getClient().$queryRawTyped(
-            drone_hack_bounding_box(topLeftLon, topLeftLat, bottomRightLon, bottomRightLat)
-        );
-        droneHackQuery.map((value) => {
-            droneHacks.push({
-                id: value.id,
-                latitude: Number(value.latitude),
-                longitude: Number(value.longitude),
-                event_time: value.event_time
-            })
-        })
-    } else {
-        const droneHackQuery = await getClient().gamelog.findMany({
-            where: {
-                action: 'drone moved'
-            }
-        })
-        droneHackQuery.map((value) => {
-            droneHacks.push({
-                id: value.id,
-                latitude: Number(value.latitude),
-                longitude: Number(value.longitude),
-                event_time: value.event_time
-            })
-        })
-    }
+    const query = topLeftLat && topLeftLon && bottomRightLat && bottomRightLon
+        ? drone_hack_bounding_box(topLeftLon, topLeftLat, bottomRightLon, bottomRightLat)
+        : drone_hack();
 
-   if(droneHacks.length > 0){
-       // Requires ESM2020
-       const nextIds = droneHacks.map(v => (BigInt(v.id) + 1n));
-       const nextHacks = await getClient().gamelog.findMany({
-           where: { id: { in: nextIds } }
-       });
+    const droneHackQuery = await client.$queryRawTyped(query);
 
-       const droneHack = nextHacks
-           .filter(h => h.action.startsWith('hacked'))
-           .map(h => ({
-               id: Number(h.id),
-               lat: Number(h.latitude),
-               lon: Number(h.longitude),
-               first_seen_time: h.event_time
-           }));
-
-       for (const d of droneHack) {
-           const key = `${d.lat},${d.lon}`;
-           if (!unique.has(key)) unique.set(key, d);
-       }
-   }   
-    return Array.from(unique.values());
+    return droneHackQuery.map((value, index) => ({
+        id: index,
+        lat: Number(value.lat),
+        lon: Number(value.lon),
+        first_seen_time: value.first_seen_time
+    }));
 }
 
 
