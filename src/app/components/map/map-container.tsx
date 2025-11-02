@@ -29,7 +29,7 @@ export function MapContainer({
         <APIProvider apiKey={mapKey}>
             {mapOverlay}
             <Map
-                style={{ width: '100vw', height: '100vh' }}
+                style={{ width: '100vw', height: '90vh' }}
                 defaultCenter={{ lat: defaultCenter[0], lng: defaultCenter[1] }}
                 defaultZoom={14}
                 mapId={mapId}>
