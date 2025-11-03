@@ -9,7 +9,7 @@ import { formatDateWithoutTime, formatTime } from '../util/dateTimeUtil';
 import { ActionCard } from '../components/card/action-card';
 import { DeckMap } from '../components/map/deck-map';
 import { MapContainer } from '../components/map/map-container';
-import { BreadCrumbs } from '../components/breadcrumbs/breadcrumbs';
+import { BreadCrumbs } from '../components/anomaly/breadcrumbs';
 
 type AnomalyData = {
     id: string,
@@ -98,7 +98,7 @@ export default function Page() {
 
     // Fetch data
     useEffect(() => {
-        if(startTime != null && endTime != null){
+        if (startTime != null && endTime != null) {
             getUserInteractionBattleBeacon(
                 startTime,
                 endTime
@@ -133,7 +133,7 @@ export default function Page() {
                 setTripData(formatted);
             });
         }
-       
+
     }, [startTime, endTime]);
 
     const layers = useDeckLayers(tripData, battleBeacons, pulseTime, currentTime, totalDuration);
@@ -148,23 +148,38 @@ export default function Page() {
     return (
         <div>
             {anomalyId && defaultCenter && (
-               <>
-                    <BreadCrumbs breadCrumbs={[{
-                        breadCrumbText: 'Anomaly Sites',
-                        breadCrumbLink: '/anomaly',
-                        currentlyActive: false
-                    }, {
-                        breadCrumbText: anomaly.filter((value) => value.id == anomalyId)[0].series_name,
-                        breadCrumbLink: '',
-                        currentlyActive: true
-                    }]}></BreadCrumbs>
+                <>
+                    <BreadCrumbs breadCrumbs={[
+                        {
+                            breadCrumbText: 'Anomaly Sites',
+                            currentlyActive: false,
+                            actions: () => {
+                                setAnomalyId('')
+                                setDefaultCenter(undefined)
+                                setCurrentInfo(null)
+                                setPulseTime(0)
+                                setTimeZone('')
+                                setTripData([])
+                            }
+                        }, {
+                            // TODO: To enable clicking in the future
+                            breadCrumbText: anomaly.filter((value) => value.id == anomalyId)[0].series_name,
+                            currentlyActive: true,
+                            actions: () => { }
+                        },
+                        {
+                            breadCrumbText: anomaly.filter((value) => value.id == anomalyId)[0].site,
+                            currentlyActive: true,
+                            actions: () => { }
+                        }]}>
+                    </BreadCrumbs>
                     <MapContainer
                         mapStyle={{ width: '100vw', height: '83vh', position: 'fixed', bottom: '0px' }}
                         defaultCenter={[defaultCenter[0], defaultCenter[1]]}
                         mapChildren={currentInfo && <ActionCard action={currentInfo.action} timestamp={currentInfo.timestamp} />}
                         mapOverlay={<DeckMap layers={layers} />}
                     />
-               </>
+                </>
             )}
             {anomalyId == '' && (
                 <div>
@@ -196,11 +211,11 @@ export default function Page() {
                             ))}
                         </Grid>
                     </Box>
-                    
+
                 </div>
 
             )}
         </div>
-       
+
     )
 }
