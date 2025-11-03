@@ -9,6 +9,7 @@ import { formatDateWithoutTime, formatTime } from '../util/dateTimeUtil';
 import { ActionCard } from '../components/card/action-card';
 import { DeckMap } from '../components/map/deck-map';
 import { MapContainer } from '../components/map/map-container';
+import { BreadCrumbs } from '../components/breadcrumbs/breadcrumbs';
 
 type AnomalyData = {
     id: string,
@@ -147,11 +148,23 @@ export default function Page() {
     return (
         <div>
             {anomalyId && defaultCenter && (
-                <MapContainer
-                    defaultCenter={[defaultCenter[0], defaultCenter[1]]}
-                    mapChildren={currentInfo && <ActionCard action={currentInfo.action} timestamp={currentInfo.timestamp} />}
-                    mapOverlay={<DeckMap layers={layers} />}
-                />
+               <>
+                    <BreadCrumbs breadCrumbs={[{
+                        breadCrumbText: 'Anomaly Sites',
+                        breadCrumbLink: '/anomaly',
+                        currentlyActive: false
+                    }, {
+                        breadCrumbText: anomaly.filter((value) => value.id == anomalyId)[0].series_name,
+                        breadCrumbLink: '',
+                        currentlyActive: true
+                    }]}></BreadCrumbs>
+                    <MapContainer
+                        mapStyle={{ width: '100vw', height: '83vh', position: 'fixed', bottom: '0px' }}
+                        defaultCenter={[defaultCenter[0], defaultCenter[1]]}
+                        mapChildren={currentInfo && <ActionCard action={currentInfo.action} timestamp={currentInfo.timestamp} />}
+                        mapOverlay={<DeckMap layers={layers} />}
+                    />
+               </>
             )}
             {anomalyId == '' && (
                 <div>

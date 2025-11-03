@@ -7,8 +7,10 @@ import { MapContainer } from '../components/map/map-container';
 export default function Page() {
 
     return (
-        <MapContainer defaultCenter={[-37.840935, 144.946457]} 
-                      mapChildren={<FetchDataOnBoundsChange />} 
+        <MapContainer 
+            mapStyle={{ width: '100vw', height: '90vh' }}    
+            defaultCenter={[-37.840935, 144.946457]} 
+            mapChildren={<FetchDataOnBoundsChange />} 
         />
     )
 }

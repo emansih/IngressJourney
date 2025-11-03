@@ -1,13 +1,14 @@
 'use client'
 
 import { APIProvider, Map } from '@vis.gl/react-google-maps';
-import { ReactNode } from "react";
+import { CSSProperties, ReactNode } from "react";
 
 
 interface MapContainerProps {
     defaultCenter: [number, number];
     mapChildren?: ReactNode;
     mapOverlay?: ReactNode;
+    mapStyle: CSSProperties | undefined;
 }
 
 
@@ -15,6 +16,7 @@ export function MapContainer({
     defaultCenter,
     mapChildren,
     mapOverlay,
+    mapStyle
 }: MapContainerProps) {
 
 
@@ -29,7 +31,7 @@ export function MapContainer({
         <APIProvider apiKey={mapKey}>
             {mapOverlay}
             <Map
-                style={{ width: '100vw', height: '90vh' }}
+                style={mapStyle}
                 defaultCenter={{ lat: defaultCenter[0], lng: defaultCenter[1] }}
                 defaultZoom={14}
                 mapId={mapId}>
