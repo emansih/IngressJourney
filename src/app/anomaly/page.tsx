@@ -254,6 +254,20 @@ export default function Page() {
                                         }, 0)
                                     }
                                     <p></p>
+                                    Links Created: {
+                                        tripData.reduce((total, value) => {
+                                            const count = value.waypoints.filter(waypoint => waypoint.action === 'created link').length;
+                                            return total + count;
+                                        }, 0)
+                                    }
+                                    <p></p>
+                                    Hypercubes Used: {
+                                        tripData.reduce((total, value) => {
+                                            const count = value.waypoints.filter(waypoint => waypoint.action === 'used Hypercube').length;
+                                            return total + count;
+                                        }, 0)
+                                    }
+                                    <p></p>
                                     Battle Beacons: {battleBeacons.length}
                                 </CardContent>
                             </Card>
