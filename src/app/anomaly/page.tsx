@@ -1,12 +1,12 @@
 'use client'
 
 import { useEffect, useState } from 'react';
-import { getActionsRange, getAnomaly, getUserInteractionBattleBeacon } from '../libs/db';
-import { Box, Card, CardActionArea, CardContent, CardMedia, Grid, Typography } from '@mui/material';
+import { getActionsRange, getAnomaly, getUserInteractionBattleBeacon, xmRechargeRange } from '../libs/db';
+import { Box, Card, CardActionArea, CardContent, CardMedia, Grid, Input, Slider, Typography } from '@mui/material';
 import { TripDataType } from '../model/tripdata';
 import { useDeckLayers } from '../hooks/useDeckLayers';
 import { formatDateWithoutTime, formatTime } from '../util/dateTimeUtil';
-import { ActionCard } from '../components/card/action-card';
+import { ActionCard } from '../components/anomaly/action-card';
 import { DeckMap } from '../components/map/deck-map';
 import { MapContainer } from '../components/map/map-container';
 import { BreadCrumbs } from '../components/anomaly/breadcrumbs';
@@ -38,7 +38,8 @@ export default function Page() {
     const [pulseTime, setPulseTime] = useState(0);
     const [battleBeacons, setBattleBeacons] = useState<LatLng[]>([]);
     const [defaultCenter, setDefaultCenter] = useState<LatLng>()
-
+    const [anomalyTimelineSpeed, setAnomalyTimelineSpeed] = useState(3);
+    const [xmRecharge, setXmRecharge] = useState(0)
     const handleChange = (anomId: string) => {
         setAnomalyId(anomId);
         const filteredAnom = anomaly.filter((value) => value.id == anomId)[0]
@@ -70,7 +71,7 @@ export default function Page() {
 
         function tick() {
             const elapsedSeconds = (performance.now() - start) / 100;
-            const t = (elapsedSeconds * 3) % totalDuration;
+            const t = (elapsedSeconds * anomalyTimelineSpeed) % totalDuration;
 
             if (t >= totalDuration - 1 / 60) {
                 setTimeout(() => setCurrentTime(0), pauseDuration);
@@ -83,7 +84,7 @@ export default function Page() {
 
         raf = requestAnimationFrame(tick);
         return () => cancelAnimationFrame(raf);
-    }, [tripData, totalDuration]);
+    }, [tripData, totalDuration, anomalyTimelineSpeed]);
 
     useEffect(() => {
         if (!tripData.length) return;
@@ -110,9 +111,9 @@ export default function Page() {
                     // Remove 'drone moved' itself
                     if (item.action === 'drone moved') return false;
 
-                    // Remove 'hacked friendly portal' if it directly follows a 'drone moved'
+                    // Remove 'hacked xxx portal' if it directly follows a 'drone moved'
                     const prev = arr[index - 1];
-                    if (prev && prev.action === 'drone moved' && item.action === 'hacked friendly portal') {
+                    if (prev && prev.action === 'drone moved' && item.action.startsWith('hacked')) {
                         return false;
                     }
 
@@ -131,10 +132,16 @@ export default function Page() {
                 const lastTimestamp = formatted[0].waypoints[formatted[0].waypoints.length - 1].timestamp;
                 setTotalDuration(lastTimestamp + 1);
                 setTripData(formatted);
+                xmRechargeRange(startTime, endTime).then(setXmRecharge)
             });
         }
 
     }, [startTime, endTime]);
+
+
+    const handleSliderChange = (event: Event, newValue: number) => {
+        setAnomalyTimelineSpeed(newValue);
+    };
 
     const layers = useDeckLayers(tripData, battleBeacons, pulseTime, currentTime, totalDuration);
 
@@ -160,6 +167,8 @@ export default function Page() {
                                 setPulseTime(0)
                                 setTimeZone('')
                                 setTripData([])
+                                setBattleBeacons([])
+                                setXmRecharge(0)
                             }
                         }, {
                             // TODO: To enable clicking in the future
@@ -173,12 +182,84 @@ export default function Page() {
                             actions: () => { }
                         }]}>
                     </BreadCrumbs>
-                    <MapContainer
-                        mapStyle={{ width: '100vw', height: '83vh', position: 'fixed', bottom: '0px' }}
-                        defaultCenter={[defaultCenter[0], defaultCenter[1]]}
-                        mapChildren={currentInfo && <ActionCard action={currentInfo.action} timestamp={currentInfo.timestamp} />}
-                        mapOverlay={<DeckMap layers={layers} />}
-                    />
+                    <Grid container spacing={2}>
+                        <Grid size={8}>
+                            <MapContainer
+                                mapStyle={{ width: '100%', height: '85vh', position: 'relative' }}
+                                defaultCenter={[defaultCenter[0], defaultCenter[1]]}
+                                mapOverlay={<DeckMap layers={layers} />}
+                            />
+                        </Grid>
+                        <Grid size={3}>
+                            <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                                Timeline Speed
+                            </Typography>
+                            <Grid container spacing={2} sx={{ alignItems: 'center' }}>
+                                <Grid size="grow">
+                                    <Slider
+                                        value={typeof anomalyTimelineSpeed === 'number' ? anomalyTimelineSpeed : 0}
+                                        onChange={handleSliderChange}
+                                        aria-labelledby="input-slider"
+                                        min={1}
+                                        max={10}
+                                        shiftStep={1}
+                                        step={1}
+                                        valueLabelDisplay="auto"
+                                        marks
+                                    />
+                                </Grid>
+                            </Grid>
+                            {
+                                currentInfo && <ActionCard action={currentInfo.action} timestamp={currentInfo.timestamp} />
+                            }
+                            <Card>
+                                <CardContent>
+                                    <Typography gutterBottom variant="h5" component="div">
+                                        Anomaly Stats
+                                    </Typography>
+                                    Captures: {
+                                        tripData.reduce((total, value) => {
+                                            const count = value.waypoints.filter(waypoint => waypoint.action === 'captured portal').length;
+                                            return total + count;
+                                        }, 0)
+                                    }
+                                    <p></p>
+                                    Hacks: {
+                                        tripData.reduce((total, value) => {
+                                            const count = value.waypoints.filter(waypoint => waypoint.action.startsWith('hacked')).length;
+                                            return total + count;
+                                        }, 0)
+                                    }
+                                    <p></p>
+                                    XM Recharged: {xmRecharge}
+                                    <p></p>
+                                    Resonators Deployed: {
+                                        tripData.reduce((total, value) => {
+                                            const count = value.waypoints.filter(waypoint => waypoint.action === 'resonator deployed').length;
+                                            return total + count;
+                                        }, 0)
+                                    }
+                                    <p></p>
+                                    Resonators Destroyed: {
+                                        tripData.reduce((total, value) => {
+                                            const count = value.waypoints.filter(waypoint => waypoint.action === 'resonator destroyed').length;
+                                            return total + count;
+                                        }, 0)
+                                    }
+                                    <p></p>
+                                    Mods Deployed: {
+                                        tripData.reduce((total, value) => {
+                                            const count = value.waypoints.filter(waypoint => waypoint.action === 'mod deployed').length;
+                                            return total + count;
+                                        }, 0)
+                                    }
+                                    <p></p>
+                                    Battle Beacons: {battleBeacons.length}
+                                </CardContent>
+                            </Card>
+                        </Grid>
+                    </Grid>
+                   
                 </>
             )}
             {anomalyId == '' && (

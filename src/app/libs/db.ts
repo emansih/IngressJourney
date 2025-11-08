@@ -208,6 +208,26 @@ export async function getLargestField(){
     }
 }
 
+export async function xmRechargeRange(startDateTime: Date, endDateTime: Date){
+    const xmRecharge = await getClient().xm_recharged.groupBy({
+        by: ['value'],
+        where: {
+            time: { 
+                gte: startDateTime,
+                lte: endDateTime
+            }
+        },
+        _sum: {
+            value: true,
+        },
+        orderBy: {
+            value: 'asc',
+        },
+    })
+    const lastElement = xmRecharge.at(-1);
+    return Number(lastElement?._sum?.value ?? 0)
+}
+
 export async function mostXmRechargedInADay(){
     const mostXmRecharged = await getClient().$queryRawTyped(maxed_xm_recharge())
     return mostXmRecharged
@@ -248,7 +268,6 @@ export async function mostModsDeployedDay(){
     return maxModsDeployedInADay
 }
 
-// This code assumes that the player was at one of the anomaly sites
 export async function getActionsRange(startDateTime: Date, endDateTime: Date){
     const getActions = await getClient().gamelog.findMany({
         where: {
