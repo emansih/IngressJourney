@@ -209,23 +209,18 @@ export async function getLargestField(){
 }
 
 export async function xmRechargeRange(startDateTime: Date, endDateTime: Date){
-    const xmRecharge = await getClient().xm_recharged.groupBy({
-        by: ['value'],
-        where: {
-            time: { 
-                gte: startDateTime,
-                lte: endDateTime
-            }
-        },
+    const xmRecharge = await getClient().xm_recharged.aggregate({
         _sum: {
             value: true,
         },
-        orderBy: {
-            value: 'asc',
+        where: {
+            time: {
+                gte: startDateTime,
+                lte: endDateTime,
+            },
         },
-    })
-    const lastElement = xmRecharge.at(-1);
-    return Number(lastElement?._sum?.value ?? 0)
+    });
+    return Number(xmRecharge._sum.value)
 }
 
 export async function mostXmRechargedInADay(){
