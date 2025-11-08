@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react';
-import { getActionsRange, getAnomaly, getUserInteractionBattleBeacon, xmRechargeRange } from '../libs/db';
+import { getActionsRange, getAnomaly, getDistanceWalked, getUserInteractionBattleBeacon, xmRechargeRange } from '../libs/db';
 import { Box, Card, CardActionArea, CardContent, CardMedia, Grid, Input, Slider, Typography } from '@mui/material';
 import { TripDataType } from '../model/tripdata';
 import { useDeckLayers } from '../hooks/useDeckLayers';
@@ -40,6 +40,8 @@ export default function Page() {
     const [defaultCenter, setDefaultCenter] = useState<LatLng>()
     const [anomalyTimelineSpeed, setAnomalyTimelineSpeed] = useState(3);
     const [xmRecharge, setXmRecharge] = useState(0)
+    const [distanceWalked, setDistanceWalked] = useState('0')
+
     const handleChange = (anomId: string) => {
         setAnomalyId(anomId);
         const filteredAnom = anomaly.filter((value) => value.id == anomId)[0]
@@ -133,6 +135,9 @@ export default function Page() {
                 setTotalDuration(lastTimestamp + 1);
                 setTripData(formatted);
                 xmRechargeRange(startTime, endTime).then(setXmRecharge)
+                getDistanceWalked(startTime, endTime).then(value => {
+                    setDistanceWalked(value.toFixed(3))
+                })
             });
         }
 
@@ -169,6 +174,7 @@ export default function Page() {
                                 setTripData([])
                                 setBattleBeacons([])
                                 setXmRecharge(0)
+                                setDistanceWalked('0')
                             }
                         }, {
                             // TODO: To enable clicking in the future
@@ -267,6 +273,8 @@ export default function Page() {
                                             return total + count;
                                         }, 0)
                                     }
+                                    <p></p>
+                                    Distance Walked: {distanceWalked} km
                                     <p></p>
                                     Battle Beacons: {battleBeacons.length}
                                 </CardContent>

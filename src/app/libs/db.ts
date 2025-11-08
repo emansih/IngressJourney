@@ -413,3 +413,19 @@ export async function getAttainedMedia(){
     })
     return mediaItems
 }
+
+export async function getDistanceWalked(startDateTime: Date, endDateTime: Date){
+    // Used kilometers_walked_new.tsv file 
+    const distanceWalked = await getClient().distance_walked.aggregate({
+        _sum: {
+            value: true,
+        },
+        where: {
+            time: {
+                gte: startDateTime,
+                lte: endDateTime,
+            },
+        },
+    });
+    return Number(distanceWalked._sum.value ?? 0)
+}

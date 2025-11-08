@@ -24,6 +24,7 @@ model gamelog {
 
   @@index([geometry], map: "idx_gamelog_geom", type: Gist)
   @@index([latitude, longitude, event_time], map: "idx_gamelog_lat_lon_time")
+  @@index([id, action], map: "idx_gamelog_id_action")
   @@schema("public")
 }
 
@@ -120,5 +121,13 @@ model medals {
   is_year_badge Boolean
 
   @@id([id, medal_name])
+  @@schema("public")
+}
+
+model distance_walked {
+  id    BigInt   @id @default(autoincrement())
+  time  DateTime @db.Timestamptz(6)
+  value Decimal  @db.Decimal
+
   @@schema("public")
 }
