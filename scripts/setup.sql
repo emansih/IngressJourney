@@ -23,7 +23,7 @@ CREATE OR REPLACE FUNCTION public.set_geo_from_latlon()
            NEW."geometry" := ST_SetSRID(ST_MakePoint(NEW."longitude", NEW."latitude"), 4326);
         END IF;
     RETURN NEW;
-END;$function$
+END;$function$;
 
 create trigger trg_set_geo BEFORE INSERT
 or
