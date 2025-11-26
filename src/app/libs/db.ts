@@ -44,29 +44,15 @@ export async function insertGameLogsBatch(logs: GamelogNew[]) {
 }
 
 export async function getCapturedPortals(minLong: number, minLat: number, maxLong: number, maxLat: number): Promise<Portal[]> {
-    const result: Portal[] = await getClient().$queryRaw`
-        SELECT DISTINCT ON ("latitude", "longitude")
-       "id" as id,
-       "latitude" AS lat,
-       "longitude" AS lon,
-       "event_time" AS first_seen_time
-FROM gamelog
-WHERE "action" = 'captured portal'
-  AND "geometry" && ST_MakeEnvelope(
-        ${minLat},
-        ${minLong},
-        ${maxLat},
-        ${maxLong},
-        4326
-    )
-ORDER BY "latitude", "longitude", "event_time" ASC;
-    `
+    const result: Portal[] = await getClient().$queryRaw`SELECT id, ST_Y(location::geometry) AS lat, ST_X(location::geometry) AS lon, event_time AS first_seen_time FROM gamelog_new WHERE action = 'captured portal' AND ST_Intersects(location,ST_MakeEnvelope(${minLat}, ${minLong}, ${maxLat}, ${maxLong}, 4326)::geography);`
+
     return result.map(r => ({
         id: r.id,
         lat: Number(r.lat),
         lon: Number(r.lon),
         first_seen_time: r.first_seen_time,
     }))
+
 }
 
 
@@ -107,11 +93,11 @@ export async function getLevelingUpTimeline() {
   l."event_time" AS level_time,
   l."comment" AS level_comment,
   l."event_time" AS event_time
-FROM gamelog l
+FROM gamelog_new l
 WHERE l."action" = 'level up'
   AND l."event_time" < (
     SELECT MIN("event_time")
-    FROM gamelog
+    FROM gamelog_new
     WHERE "action" = 'recursion request confirmed'
   )
 
@@ -124,13 +110,13 @@ SELECT
   l."event_time" AS level_time,
   l."comment" AS level_comment,
   COALESCE(l."event_time", r."event_time") AS event_time
-FROM gamelog r
-LEFT JOIN gamelog l
+FROM gamelog_new r
+LEFT JOIN gamelog_new l
   ON l."action" = 'level up'
   AND l."event_time" >= r."event_time"
   AND l."event_time" < (
     SELECT MIN("event_time")
-    FROM gamelog r2
+    FROM gamelog_new r2
     WHERE r2."action" = 'recursion request confirmed'
       AND r2."event_time" > r."event_time"
   )
