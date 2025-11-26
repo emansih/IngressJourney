@@ -23,3 +23,16 @@ They aren't unique at all! In a couple of files, `beacon_battles.tsv`, `portal_g
 
 NIA has not released a unique drone layer in the game as of writing(26 Nov 2025). I made a IITC plugin where you can view the unique portals that your drone has visited. 1 caveat is that, my software assumes that you hack the portal after moving the drone. If you were to do any other actions such as deploying modds, link, destroy resonators, deploy resonators, etc. the software will not consider it as a unique drone portal visited. 
 
+
+### Battle Beacons
+
+NIA did not release the lat, lon of the battle beacon interaction. An assumption this software makes is to search for any activity in the gamelog within 3.5 mins after battle beacon interaction is recorded. It gives a rough estimate of the location. 
+
+Example: 
+
+Battle beacon interaction
+```
+2022-01-22 12:11:02 UTC	1
+```
+
+Search in gamelog where user has an action within 3.5 mins time range. 
