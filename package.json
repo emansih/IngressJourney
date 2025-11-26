@@ -19,9 +19,11 @@
     "@mui/material-nextjs": "^7.3.3",
     "@prisma/adapter-pg": "^6.16.3",
     "@prisma/client": "^6.16.3",
+    "@types/papaparse": "^5.5.0",
     "@vis.gl/react-google-maps": "^1.5.5",
     "deck.gl": "^9.2.1",
     "next": "15.5.4",
+    "papaparse": "^5.5.3",
     "react": "19.1.0",
     "react-dom": "19.1.0"
   },

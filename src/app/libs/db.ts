@@ -13,6 +13,35 @@ function getClient() {
     return prisma
 }
 
+export async function insertGameLogsBatch(logs: GamelogNew[]) {
+    const eventTimes = [];
+    const actions = [];
+    const comments = [];
+    const lons = [];
+    const lats = [];
+
+    for (const log of logs) {
+        const [lon, lat] = log.location.coordinates;
+        eventTimes.push(log.eventTime);
+        actions.push(log.action);
+        comments.push(log.comment);
+        lons.push(lon);
+        lats.push(lat);
+    }
+
+    
+    await getClient().$executeRaw`
+        INSERT INTO "gamelog_new"("event_time", "action", "comment", "location")
+        SELECT 
+            unnest(${eventTimes}::timestamptz[]),
+            unnest(${actions}::text[]),
+            unnest(${comments}::text[]),
+            ST_SetSRID(ST_MakePoint(
+                unnest(${lons}::float8[]),
+                unnest(${lats}::float8[])
+            ), 4326)::geography
+    `;
+}
 
 export async function getCapturedPortals(minLong: number, minLat: number, maxLong: number, maxLat: number): Promise<Portal[]> {
     const result: Portal[] = await getClient().$queryRaw`

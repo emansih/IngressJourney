@@ -7,6 +7,8 @@ generator client {
 
 datasource db {
   provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
   schemas   = ["public"]
 }
 
@@ -23,18 +25,6 @@ model gamelog {
   @@index([geometry], map: "idx_gamelog_geom", type: Gist)
   @@index([latitude, longitude, event_time], map: "idx_gamelog_lat_lon_time")
   @@index([id, action], map: "idx_gamelog_id_action")
-  @@schema("public")
-}
-
-/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-model portal_history {
-  id        BigInt                  @id @default(autoincrement())
-  type      String?
-  latitude  Decimal                 @db.Decimal
-  longitude Decimal                 @db.Decimal
-  geometry  Unsupported("geometry")
-
-  @@index([geometry], map: "idx_portal_history_geom", type: Gist)
   @@schema("public")
 }
 
@@ -126,6 +116,27 @@ model distance_walked {
   id    BigInt   @id @default(autoincrement())
   time  DateTime @db.Timestamptz(6)
   value Decimal  @db.Decimal
+
+  @@schema("public")
+}
+
+model gamelog_new {
+  id         BigInt                    @id @default(autoincrement())
+  event_time DateTime                  @db.Timestamptz(6)
+  action     String
+  comment    String?
+  location   Unsupported("geography")?
+
+  @@schema("public")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model spatial_ref_sys {
+  srid      Int     @id
+  auth_name String? @db.VarChar(256)
+  auth_srid Int?
+  srtext    String? @db.VarChar(2048)
+  proj4text String? @db.VarChar(2048)
 
   @@schema("public")
 }
