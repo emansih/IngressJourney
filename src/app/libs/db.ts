@@ -4,7 +4,6 @@ import { PrismaPg } from "@prisma/adapter-pg"
 import { PrismaClient } from "../model/generated/prisma/client"
 import { TimelineBlock } from "../model/recursion"
 import { battle_beacon_interaction, drone_hack, drone_hack_bounding_box, game_log_action_range, largest_field, maxed_xm_recharge, most_captured_portal, most_captured_portal_day, most_created_field_day, most_deployed_resonator_day, most_destroyed_resonator_day, most_link_created_day, most_mods_deployed_day } from "../model/generated/prisma/sql"
-import { gamelog_new } from '../model/generated/prisma/browser';
 
 
 function getClient() {
