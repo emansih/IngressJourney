@@ -367,7 +367,7 @@ export async function getDroneHacks(topLeftLat: number | null, topLeftLon: numbe
 
 
 export async function getAttainedMedia(){
-    const mediaItems = await getClient().gamelog.findMany({
+    const mediaItems = await getClient().gamelog_new.findMany({
         where: {
             comment: {
                 contains: 'Dropped Media Item:',
