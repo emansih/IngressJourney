@@ -3,7 +3,7 @@
 import { PrismaPg } from "@prisma/adapter-pg"
 import { PrismaClient } from "../model/generated/prisma/client"
 import { TimelineBlock } from "../model/recursion"
-import { drone_hack, drone_hack_bounding_box, maxed_xm_recharge, most_captured_portal, most_captured_portal_day, most_created_field_day, most_deployed_resonator_day, most_destroyed_resonator_day, most_link_created_day, most_mods_deployed_day } from "../model/generated/prisma/sql"
+import { battle_beacon_interaction, drone_hack, drone_hack_bounding_box, game_log_action_range, maxed_xm_recharge, most_captured_portal, most_captured_portal_day, most_created_field_day, most_deployed_resonator_day, most_destroyed_resonator_day, most_link_created_day, most_mods_deployed_day } from "../model/generated/prisma/sql"
 
 
 function getClient() {
@@ -279,24 +279,7 @@ export async function mostModsDeployedDay(){
 }
 
 export async function getActionsRange(startDateTime: Date, endDateTime: Date){
-    const getActions = await getClient().gamelog.findMany({
-        where: {
-            event_time: {
-                gte: startDateTime, 
-                lte: endDateTime, 
-            },
-            // there are some actions such as claiming bounties that result in lat, lon 0,0
-            latitude: {
-                not: 0
-            },
-            longitude: {
-                not: 0
-            }
-        },
-        orderBy: {
-            event_time: 'asc',
-        }
-    })
+    const getActions = await getClient().$queryRawTyped(game_log_action_range(startDateTime, endDateTime))
 
     const serialized = getActions.map((a, i) => ({
         id: a.id,
@@ -312,42 +295,12 @@ export async function getActionsRange(startDateTime: Date, endDateTime: Date){
 
 
 export async function getUserInteractionBattleBeacon(start: Date, end: Date){
-    const battleBeaconInteraction = await getClient().beacon_battles.findMany({
-        where: {
-            time: {
-                gte: start,
-                lte: end,
-            },
-        },
-    });
     const MAX_TIME_RANGE_TO_SEARCH = 210000; // 3.5 minutes
-    const battleBeaconLocationArray: LatLng[] = [];
-    await Promise.all(
-        battleBeaconInteraction.map(async (value) => {
-            const maxTime = new Date(value.time.getTime() + MAX_TIME_RANGE_TO_SEARCH);
-            const closestLog = await getClient().gamelog.findFirst({
-                where: {
-                    event_time: {
-                        gte: value.time,
-                        lte: maxTime,
-                    },
-                    latitude: { not: 0 },
-                    longitude: { not: 0 },
-                },
-                orderBy: {
-                    event_time: 'asc',
-                },
-            });
-
-            if (closestLog) {
-                battleBeaconLocationArray.push([
-                    Number(closestLog.latitude),
-                    Number(closestLog.longitude),
-                ]);
-            }
-        })
-    );
-    return battleBeaconLocationArray;
+    const bbInteraction = await getClient().$queryRawTyped(battle_beacon_interaction(MAX_TIME_RANGE_TO_SEARCH, start, end))
+    const results = bbInteraction
+        .filter(r => r.lat != null && r.lon != null)
+        .map(r => [r.lat, r.lon] as [number, number]);
+    return results;
 }
 
 export async function getAnomaly(){
