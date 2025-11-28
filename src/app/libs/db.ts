@@ -3,7 +3,8 @@
 import { PrismaPg } from "@prisma/adapter-pg"
 import { PrismaClient } from "../model/generated/prisma/client"
 import { TimelineBlock } from "../model/recursion"
-import { battle_beacon_interaction, drone_hack, drone_hack_bounding_box, game_log_action_range, maxed_xm_recharge, most_captured_portal, most_captured_portal_day, most_created_field_day, most_deployed_resonator_day, most_destroyed_resonator_day, most_link_created_day, most_mods_deployed_day } from "../model/generated/prisma/sql"
+import { battle_beacon_interaction, drone_hack, drone_hack_bounding_box, game_log_action_range, largest_field, maxed_xm_recharge, most_captured_portal, most_captured_portal_day, most_created_field_day, most_deployed_resonator_day, most_destroyed_resonator_day, most_link_created_day, most_mods_deployed_day } from "../model/generated/prisma/sql"
+import { gamelog_new } from '../model/generated/prisma/browser';
 
 
 function getClient() {
@@ -192,29 +193,18 @@ export async function getApexEvents() {
 }
 
 export async function getLargestField(){
-    const largestField = await getClient().mind_units_controlled.findFirst({
-        orderBy: {
-            value: 'desc',
-        },
-        select: {
-            time: true,
-            value: true,
-        }
-    })
-    const largestFieldLocation = await getClient().gamelog.findFirst({
-        where: {
-            event_time: largestField?.time,
-            action: 'created link'
-        },
-        select: {
-            latitude: true,
-            longitude: true
-        }
-    })
-    const latitude = largestFieldLocation?.latitude
-    const longitude = largestFieldLocation?.longitude
-    const timestamp = largestField?.time
-    const muCreated = largestField?.value
+    const largestFieldQuery = await getClient().$queryRawTyped(largest_field())
+    let latitude: number | null = null;
+    let longitude: number | null = null;
+    let timestamp: Date | null = null;
+    let muCreated: number | null = null;
+    if(largestFieldQuery.length > 0){
+        const largestField = largestFieldQuery[0]
+        latitude = largestField.lat
+        longitude = largestField.lon
+        timestamp = largestField.time
+        muCreated = Number(largestField.value)
+    }
     return {
         latitude: latitude,
         longitude: longitude,
