@@ -38,3 +38,15 @@ It will take about a month for Niantic Spatial to get back to you.
 
 
 The `scripts` directory contains neccessary SQL queries to setup the DB. 
+
+### Screenshots
+
+View your anomaly statistics
+![anomaly_statistics](assets/anomaly_statistics.png)
+
+View your top stats
+![top_stats](assets/top_stats.png)
+
+
+View all unique portal captured
+![unique_portal](assets/unique_portal_captured.png)
