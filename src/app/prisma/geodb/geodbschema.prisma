@@ -1,0 +1,44 @@
+generator client {
+  provider        = "prisma-client"
+  output          = "../model/generated/geodb/prisma"
+  previewFeatures = ["typedSql"]
+  runtime         = "nodejs"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("GEODB_URL")
+  directUrl = env("DIRECT_GEODB_URL")
+  schemas   = ["public"]
+}
+
+model lga_polygon {
+  objectid              Int                      @id @default(autoincrement())
+  ufi                   Int?
+  pfi                   String?                  @db.VarChar(10)
+  lga_code              String?                  @db.VarChar(3)
+  lga_name              String?                  @db.VarChar(45)
+  lga_official_name     String?                  @db.VarChar(45)
+  gazettal_registration String?                  @db.VarChar(15)
+  abs_lga_code          String?                  @db.VarChar(5)
+  task_id               Int?
+  pfi_created           DateTime?                @db.Timestamptz(6)
+  ufi_old               Int?
+  ufi_created           DateTime?                @db.Timestamptz(6)
+  label_use_code        Int?                     @db.SmallInt
+  geom                  Unsupported("geometry")?
+
+  @@index([geom], map: "lga_polygon_geom_geom_idx", type: Gist)
+  @@schema("public")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model spatial_ref_sys {
+  srid      Int     @id
+  auth_name String? @db.VarChar(256)
+  auth_srid Int?
+  srtext    String? @db.VarChar(2048)
+  proj4text String? @db.VarChar(2048)
+
+  @@schema("public")
+}

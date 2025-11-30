@@ -1,0 +1,1 @@
+SELECT objectid, lga_name, ST_AsGeoJSON(ST_MakeValid(geom)) AS geojson FROM lga_polygon;
