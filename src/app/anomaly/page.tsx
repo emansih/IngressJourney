@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react';
-import { getActionsRange, getAnomaly, getDistanceWalked, getUserInteractionBattleBeacon, xmRechargeRange } from '../libs/db';
+import { getActionsRange, getAnomaly, getDestroyedMods, getDistanceWalked, getUserInteractionBattleBeacon, xmRechargeRange } from '../libs/db';
 import { Box, Card, CardActionArea, CardContent, CardMedia, Grid, Input, Slider, Typography } from '@mui/material';
 import { TripDataType } from '../model/tripdata';
 import { useDeckLayers } from '../hooks/useDeckLayers';
@@ -41,6 +41,7 @@ export default function Page() {
     const [anomalyTimelineSpeed, setAnomalyTimelineSpeed] = useState(3);
     const [xmRecharge, setXmRecharge] = useState(0)
     const [distanceWalked, setDistanceWalked] = useState('0')
+    const [modsDestroyed, setModsDestroyed] = useState(0)
 
     const handleChange = (anomId: string) => {
         setAnomalyId(anomId);
@@ -106,7 +107,7 @@ export default function Page() {
                 startTime,
                 endTime
             ).then(setBattleBeacons);
-
+            getDestroyedMods(startTime, endTime).then(setModsDestroyed)
             getActionsRange(startTime, endTime).then((value) => {
                 if (!value.length) return;
                 const filtered = value.filter((item, index, arr) => {
@@ -259,6 +260,8 @@ export default function Page() {
                                             return total + count;
                                         }, 0)
                                     }
+                                    <p></p>
+                                    Mods Destroyed: {modsDestroyed}
                                     <p></p>
                                     Links Created: {
                                         tripData.reduce((total, value) => {

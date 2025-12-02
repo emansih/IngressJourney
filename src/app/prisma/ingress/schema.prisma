@@ -85,7 +85,7 @@ model beacon_battles {
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model anomaly {
-  id          String                   @id @db.Uuid
+  id          String                   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   timezone    String
   series_name String
   site        String
@@ -131,6 +131,14 @@ model medals {
   medal_name    String
   is_vanity     Boolean
   is_year_badge Boolean
+
+  @@schema("public")
+}
+
+model mods_destroyed {
+  id    BigInt   @id @default(autoincrement())
+  time  DateTime @db.Timestamptz(6)
+  value Decimal  @db.Decimal
 
   @@schema("public")
 }

@@ -377,3 +377,18 @@ export async function getDistanceWalked(startDateTime: Date, endDateTime: Date){
     });
     return Number(distanceWalked._sum.value ?? 0)
 }
+
+export async function getDestroyedMods(startDateTime: Date, endDateTime: Date){
+    const modsDestroyed = await getClient().mods_destroyed.aggregate({
+        _sum: {
+            value: true,
+        },
+        where: {
+            time: {
+                gte: startDateTime,
+                lte: endDateTime,
+            },
+        },
+    });
+    return Number(modsDestroyed._sum.value)
+}
