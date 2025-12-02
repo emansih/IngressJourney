@@ -1,6 +1,6 @@
 generator client {
   provider        = "prisma-client"
-  output          = "../model/generated/prisma/geodb"
+  output          = "../generated/geodb"
   previewFeatures = ["typedSql"]
   runtime         = "nodejs"
 }
