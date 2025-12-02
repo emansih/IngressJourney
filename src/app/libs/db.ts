@@ -2,10 +2,8 @@
 
 import { PrismaPg } from "@prisma/adapter-pg"
 import { TimelineBlock } from "../model/recursion"
-import { battle_beacon_interaction, drone_hack, drone_hack_bounding_box, game_log_action_range, largest_field, maxed_xm_recharge, most_captured_portal, most_captured_portal_day, most_created_field_day, most_deployed_resonator_day, most_destroyed_resonator_day, most_link_created_day, most_mods_deployed_day } from "../model/generated/prisma/sql"
-import { insert_gamelog } from "../prisma/model/generated/prisma/sql"
-import { PrismaClient } from "../prisma/model/generated/prisma/ingress/client"
-
+import { battle_beacon_interaction, drone_hack, drone_hack_bounding_box, game_log_action_range, largest_field, maxed_xm_recharge, most_captured_portal, most_captured_portal_day, most_created_field_day, most_deployed_resonator_day, most_destroyed_resonator_day, most_link_created_day, most_mods_deployed_day, insert_gamelog } from "../prisma/generated/ingress/sql"
+import { PrismaClient } from "../prisma/generated/ingress/client"
 
 function getClient() {
     const connectionString = `${process.env.DATABASE_URL}`
@@ -290,8 +288,8 @@ export async function getAnomaly(){
     })
     const serialized = anomalyData.map((a) => ({
         id: a.id,
-        latitude: Number(a.lat),
-        longitude: Number(a.lon),
+        latitude: Number(0),
+        longitude: Number(0),
         timezone: a.timezone,
         series_name: a.series_name,
         site: a.site,
