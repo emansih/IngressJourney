@@ -2,8 +2,9 @@
 
 import { PrismaPg } from "@prisma/adapter-pg"
 import { TimelineBlock } from "../model/recursion"
-import { battle_beacon_interaction, drone_hack, drone_hack_bounding_box, game_log_action_range, largest_field, maxed_xm_recharge, most_captured_portal, most_captured_portal_day, most_created_field_day, most_deployed_resonator_day, most_destroyed_resonator_day, most_link_created_day, most_mods_deployed_day, insert_gamelog } from "../prisma/generated/ingress/sql"
+import { battle_beacon_interaction, drone_hack, drone_hack_bounding_box, game_log_action_range, largest_field, maxed_xm_recharge, most_captured_portal, most_captured_portal_day, most_created_field_day, most_deployed_resonator_day, most_destroyed_resonator_day, most_link_created_day, most_mods_deployed_day, insert_gamelog, get_anomaly } from "../prisma/generated/ingress/sql"
 import { PrismaClient } from "../prisma/generated/ingress/client"
+import { anomaly } from '../prisma/generated/ingress/browser';
 
 function getClient() {
     const connectionString = `${process.env.DATABASE_URL}`
@@ -281,15 +282,11 @@ export async function getUserInteractionBattleBeacon(start: Date, end: Date){
 }
 
 export async function getAnomaly(){
-    const anomalyData = await getClient().anomaly.findMany({
-        orderBy: {
-            start_time: 'asc',
-        }
-    })
+    const anomalyData = await getClient().$queryRawTyped(get_anomaly())
     const serialized = anomalyData.map((a) => ({
         id: a.id,
-        latitude: Number(0),
-        longitude: Number(0),
+        latitude: Number(a.latitude),
+        longitude: Number(a.longitude),
         timezone: a.timezone,
         series_name: a.series_name,
         site: a.site,
