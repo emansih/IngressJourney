@@ -2,9 +2,8 @@
 
 import { PrismaPg } from "@prisma/adapter-pg"
 import { TimelineBlock } from "../model/recursion"
-import { battle_beacon_interaction, drone_hack, drone_hack_bounding_box, game_log_action_range, largest_field, maxed_xm_recharge, most_captured_portal, most_captured_portal_day, most_created_field_day, most_deployed_resonator_day, most_destroyed_resonator_day, most_link_created_day, most_mods_deployed_day, insert_gamelog, get_anomaly } from "../prisma/generated/ingress/sql"
+import { battle_beacon_interaction, drone_hack, drone_hack_bounding_box, game_log_action_range, largest_field, maxed_xm_recharge, most_captured_portal, most_captured_portal_day, most_created_field_day, most_deployed_resonator_day, most_destroyed_resonator_day, most_link_created_day, most_mods_deployed_day, insert_gamelog, get_anomaly, insert_anomaly } from "../prisma/generated/ingress/sql"
 import { PrismaClient } from "../prisma/generated/ingress/client"
-import { anomaly } from '../prisma/generated/ingress/browser';
 
 function getClient() {
     const connectionString = `${process.env.DATABASE_URL}`
@@ -295,6 +294,13 @@ export async function getAnomaly(){
         cover_photo: a.cover_photo
     }));
     return serialized
+}
+
+
+export async function insertAnomalyData(timezone: string, seriesName: string, site: string,
+    startTime: Date, endTime: Date, lat: number, lon: number, coverPhoto: string){
+    const anomaly = await getClient().$queryRawTyped(insert_anomaly(lat, lon, timezone, seriesName, site, startTime, endTime, coverPhoto))
+    return anomaly
 }
 
 

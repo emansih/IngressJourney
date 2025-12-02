@@ -42,7 +42,7 @@ SET default_table_access_method = heap;
 --
 
 CREATE TABLE public.anomaly (
-    id uuid NOT NULL,
+    id uuid NOT NULL default gen_random_uuid (),
     timezone text NOT NULL,
     series_name text NOT NULL,
     site text NOT NULL,
