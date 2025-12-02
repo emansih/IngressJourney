@@ -299,7 +299,7 @@ export async function getAnomaly(){
 
 export async function insertAnomalyData(timezone: string, seriesName: string, site: string,
     startTime: Date, endTime: Date, lat: number, lon: number, coverPhoto: string){
-    const anomaly = await getClient().$queryRawTyped(insert_anomaly(lat, lon, timezone, seriesName, site, startTime, endTime, coverPhoto))
+    const anomaly = await getClient().$queryRawTyped(insert_anomaly(lon, lat, timezone, seriesName, site, startTime, endTime, coverPhoto))
     return anomaly
 }
 
