@@ -1,6 +1,6 @@
 type GamelogNew = {
     id: string | null;
-    eventTime: string;
+    eventTime: Date;
     action: string;
     comment: string;
     location: {

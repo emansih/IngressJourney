@@ -2,7 +2,7 @@ SELECT
     DATE(event_time) AS day,
     COUNT(*) AS resonator_count
 FROM 
-    public.gamelog_new
+    public.gamelog
 WHERE 
     action = 'resonator deployed'
 GROUP BY 

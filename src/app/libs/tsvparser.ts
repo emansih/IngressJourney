@@ -42,7 +42,7 @@ export async function parseGameLog(file: File) {
             const row = result.data;
             buffer.push({
                 id: null,
-                eventTime: row.eventTime,
+                eventTime: new Date(row.eventTime),
                 action: row.action,
                 comment: row.comment,
                 location: {

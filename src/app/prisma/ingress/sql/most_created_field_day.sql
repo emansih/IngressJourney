@@ -2,7 +2,7 @@ SELECT
     DATE(event_time) AS day,
     COUNT(*) AS field_count
 FROM 
-    public.gamelog_new
+    public.gamelog
 WHERE 
     action = 'created field'
 GROUP BY 

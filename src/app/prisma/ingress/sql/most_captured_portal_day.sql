@@ -2,7 +2,7 @@ SELECT
     DATE(event_time) AS day,
     COUNT(*) AS captured_count
 FROM 
-    public.gamelog_new
+    public.gamelog
 WHERE 
     action = 'captured portal'
 GROUP BY 

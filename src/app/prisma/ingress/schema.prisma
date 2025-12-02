@@ -1,6 +1,6 @@
 generator client {
   provider        = "prisma-client"
-  output          = "../model/generated/prisma"
+  output          = "../model/generated/prisma/ingress/"
   previewFeatures = ["typedSql"]
   runtime         = "nodejs"
 }
@@ -14,27 +14,24 @@ datasource db {
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model gamelog {
-  id         BigInt                  @id @default(autoincrement())
-  event_time DateTime                @db.Timestamptz(6)
-  latitude   Decimal                 @db.Decimal
-  longitude  Decimal                 @db.Decimal
+  id         BigInt                    @id @default(autoincrement())
+  event_time DateTime                  @db.Timestamptz(6)
   action     String
   comment    String?
-  geometry   Unsupported("geometry")
+  location   Unsupported("geography")?
 
-  @@index([geometry], map: "idx_gamelog_geom", type: Gist)
-  @@index([latitude, longitude, event_time], map: "idx_gamelog_lat_lon_time")
-  @@index([id, action], map: "idx_gamelog_id_action")
+  @@index([action, event_time], map: "idx_gamelog_action_time")
+  @@index([location], map: "idx_gamelog_location", type: Gist)
   @@schema("public")
 }
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model store_purchases {
-  id                      BigInt   @id @default(autoincrement())
+  id                      String   @id
   time                    DateTime @db.Timestamptz(6)
   transaction_type        String
   item                    String
-  new_cmu_balance         String?
+  new_cmu_balance         String
   transaction_description String
 
   @@schema("public")
@@ -46,6 +43,7 @@ model mind_units_controlled {
   time  DateTime @db.Timestamptz(6)
   value Decimal  @db.Decimal
 
+  @@index([time], map: "idx_mind_units_time")
   @@schema("public")
 }
 
@@ -78,41 +76,6 @@ model xm_recharged {
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model beacon_battles {
-  id        BigInt   @id @default(autoincrement())
-  time      DateTime @db.Timestamptz(6)
-  unique_id BigInt
-
-  @@schema("public")
-}
-
-/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-model anomaly {
-  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  lat         Decimal  @db.Decimal
-  lon         Decimal  @db.Decimal
-  timezone    String
-  series_name String
-  site        String
-  start_time  DateTime @db.Timestamptz(6)
-  end_time    DateTime @db.Timestamptz(6)
-  cover_photo String?
-
-  @@schema("public")
-}
-
-/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-model medals {
-  id            BigInt   @default(autoincrement())
-  attained_at   DateTime @db.Timestamptz(6)
-  medal_name    String   @unique
-  is_vanity     Boolean
-  is_year_badge Boolean
-
-  @@id([id, medal_name])
-  @@schema("public")
-}
-
-model distance_walked {
   id    BigInt   @id @default(autoincrement())
   time  DateTime @db.Timestamptz(6)
   value Decimal  @db.Decimal
@@ -120,12 +83,15 @@ model distance_walked {
   @@schema("public")
 }
 
-model gamelog_new {
-  id         BigInt                    @id @default(autoincrement())
-  event_time DateTime                  @db.Timestamptz(6)
-  action     String
-  comment    String?
-  location   Unsupported("geography")?
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model anomaly {
+  id          String                   @id @db.Uuid
+  timezone    String
+  series_name String
+  site        String
+  start_time  DateTime                 @db.Timestamptz(6)
+  end_time    DateTime                 @db.Timestamptz(6)
+  location    Unsupported("geography")
 
   @@schema("public")
 }
@@ -138,5 +104,14 @@ model spatial_ref_sys {
   srtext    String? @db.VarChar(2048)
   proj4text String? @db.VarChar(2048)
 
+  @@schema("public")
+}
+
+model portal_history {
+  id       BigInt                   @id
+  type     String
+  location Unsupported("geography")
+
+  @@index([location], map: "idx_portal_history_geom", type: Gist)
   @@schema("public")
 }

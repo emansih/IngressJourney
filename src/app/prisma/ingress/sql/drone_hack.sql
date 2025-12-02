@@ -1,17 +1,17 @@
-      WITH moved AS (
-        SELECT DISTINCT ON (latitude, longitude)
+WITH moved AS (
+        SELECT DISTINCT ON (location)
           id,
-          latitude,
-          longitude,
+          ST_Y(location::geometry) AS latitude,
+          ST_X(location::geometry) AS longitude,
           event_time
         FROM gamelog
         WHERE action = 'drone moved'
-        ORDER BY latitude, longitude, event_time
-      )
-      SELECT 
+        ORDER BY location, event_time
+)
+SELECT 
         h.id,
-        h.latitude AS lat,
-        h.longitude AS lon,
+        ST_Y(h.location::geometry) AS lat,
+        ST_X(h.location::geometry) AS lon,
         h.event_time AS first_seen_time
       FROM gamelog h
       JOIN moved m ON h.id = m.id + 1

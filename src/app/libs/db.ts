@@ -1,9 +1,10 @@
 "use server"
 
 import { PrismaPg } from "@prisma/adapter-pg"
-import { PrismaClient } from "../model/generated/prisma/client"
 import { TimelineBlock } from "../model/recursion"
 import { battle_beacon_interaction, drone_hack, drone_hack_bounding_box, game_log_action_range, largest_field, maxed_xm_recharge, most_captured_portal, most_captured_portal_day, most_created_field_day, most_deployed_resonator_day, most_destroyed_resonator_day, most_link_created_day, most_mods_deployed_day } from "../model/generated/prisma/sql"
+import { insert_gamelog } from "../prisma/model/generated/prisma/sql"
+import { PrismaClient } from "../prisma/model/generated/prisma/ingress/client"
 
 
 function getClient() {
@@ -14,11 +15,11 @@ function getClient() {
 }
 
 export async function insertGameLogsBatch(logs: GamelogNew[]) {
-    const eventTimes = [];
-    const actions = [];
-    const comments = [];
-    const lons = [];
-    const lats = [];
+    const eventTimes: Date[] = [];
+    const actions: string[] = [];
+    const comments: string[] = [];
+    const lons: number[] = [];
+    const lats: number[] = [];
 
     for (const log of logs) {
         const [lon, lat] = log.location.coordinates;
@@ -28,23 +29,12 @@ export async function insertGameLogsBatch(logs: GamelogNew[]) {
         lons.push(lon);
         lats.push(lat);
     }
-
     
-    await getClient().$executeRaw`
-        INSERT INTO "gamelog_new"("event_time", "action", "comment", "location")
-        SELECT 
-            unnest(${eventTimes}::timestamptz[]),
-            unnest(${actions}::text[]),
-            unnest(${comments}::text[]),
-            ST_SetSRID(ST_MakePoint(
-                unnest(${lons}::float8[]),
-                unnest(${lats}::float8[])
-            ), 4326)::geography
-    `;
+    await getClient().$queryRawTyped(insert_gamelog(eventTimes, actions, comments, lons, lats))
 }
 
 export async function getCapturedPortals(minLong: number, minLat: number, maxLong: number, maxLat: number): Promise<Portal[]> {
-    const result: Portal[] = await getClient().$queryRaw`SELECT id, ST_Y(location::geometry) AS lat, ST_X(location::geometry) AS lon, event_time AS first_seen_time FROM gamelog_new WHERE action = 'captured portal' AND ST_Intersects(location,ST_MakeEnvelope(${minLat}, ${minLong}, ${maxLat}, ${maxLong}, 4326)::geography);`
+    const result: Portal[] = await getClient().$queryRaw`SELECT id, ST_Y(location::geometry) AS lat, ST_X(location::geometry) AS lon, event_time AS first_seen_time FROM gamelog WHERE action = 'captured portal' AND ST_Intersects(location,ST_MakeEnvelope(${minLat}, ${minLong}, ${maxLat}, ${maxLong}, 4326)::geography);`
 
     return result.map(r => ({
         id: r.id,
@@ -93,11 +83,11 @@ export async function getLevelingUpTimeline() {
   l."event_time" AS level_time,
   l."comment" AS level_comment,
   l."event_time" AS event_time
-FROM gamelog_new l
+FROM gamelog l
 WHERE l."action" = 'level up'
   AND l."event_time" < (
     SELECT MIN("event_time")
-    FROM gamelog_new
+    FROM gamelog
     WHERE "action" = 'recursion request confirmed'
   )
 
@@ -110,13 +100,13 @@ SELECT
   l."event_time" AS level_time,
   l."comment" AS level_comment,
   COALESCE(l."event_time", r."event_time") AS event_time
-FROM gamelog_new r
-LEFT JOIN gamelog_new l
+FROM gamelog r
+LEFT JOIN gamelog l
   ON l."action" = 'level up'
   AND l."event_time" >= r."event_time"
   AND l."event_time" < (
     SELECT MIN("event_time")
-    FROM gamelog_new r2
+    FROM gamelog r2
     WHERE r2."action" = 'recursion request confirmed'
       AND r2."event_time" > r."event_time"
   )
@@ -356,7 +346,7 @@ export async function getDroneHacks(topLeftLat: number | null, topLeftLon: numbe
 
 
 export async function getAttainedMedia(){
-    const mediaItems = await getClient().gamelog_new.findMany({
+    const mediaItems = await getClient().gamelog.findMany({
         where: {
             comment: {
                 contains: 'Dropped Media Item:',
