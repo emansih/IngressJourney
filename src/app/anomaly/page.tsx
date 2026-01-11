@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { getActionsRange, getAnomaly, getDestroyedMods, getDistanceWalked, getUserInteractionBattleBeacon, xmRechargeRange } from '../libs/db';
-import { Box, Card, CardActionArea, CardContent, CardMedia, Grid, Input, Slider, Typography } from '@mui/material';
+import { Box, Card, CardActionArea, CardContent, CardMedia, Grid, Slider, Typography } from '@mui/material';
 import { TripDataType } from '../model/tripdata';
 import { useDeckLayers } from '../hooks/useDeckLayers';
 import { formatDateWithoutTime, formatTime } from '../util/dateTimeUtil';
@@ -10,6 +10,7 @@ import { ActionCard } from '../components/anomaly/action-card';
 import { DeckMap } from '../components/map/deck-map';
 import { MapContainer } from '../components/map/map-container';
 import { BreadCrumbs } from '../components/anomaly/breadcrumbs';
+import { StatsCards } from '../components/anomaly/stats-cards';
 
 type AnomalyData = {
     id: string,
@@ -94,7 +95,6 @@ export default function Page() {
         const waypoints = tripData[0].waypoints;
         const index = waypoints.findIndex((p) => p.timestamp > currentTime);
         const current = index > 0 ? waypoints[index - 1] : waypoints[0];
-
         if (current && current.action) {
             setCurrentInfo({ action: current.action, timestamp: formatTime(current.time, timeZone) });
         }
@@ -201,90 +201,34 @@ export default function Page() {
                             <Typography variant="body2" sx={{ color: 'text.secondary' }}>
                                 Timeline Speed
                             </Typography>
-                            <Grid container spacing={2} sx={{ alignItems: 'center' }}>
-                                <Grid size="grow">
-                                    <Slider
-                                        value={typeof anomalyTimelineSpeed === 'number' ? anomalyTimelineSpeed : 0}
-                                        onChange={handleSliderChange}
-                                        aria-labelledby="input-slider"
-                                        min={1}
-                                        max={10}
-                                        shiftStep={1}
-                                        step={1}
-                                        valueLabelDisplay="auto"
-                                        marks
-                                    />
-                                </Grid>
-                            </Grid>
+                            <Slider
+                                value={typeof anomalyTimelineSpeed === 'number' ? anomalyTimelineSpeed : 0}
+                                onChange={handleSliderChange}
+                                aria-labelledby="input-slider"
+                                min={1}
+                                max={10}
+                                shiftStep={1}
+                                step={1}
+                                valueLabelDisplay="auto"
+                                marks
+                            />
                             {
-                                currentInfo && <ActionCard action={currentInfo.action} timestamp={currentInfo.timestamp} />
+                                currentInfo && (
+                                    <div>
+                                        <ActionCard action={currentInfo.action} />
+
+                                        <StatsCards
+                                            tripData={tripData}
+                                            xmRecharged={xmRecharge}
+                                            modsDestroyed={modsDestroyed}
+                                            distanceWalked={distanceWalked}
+                                            battleBeacons={battleBeacons.length}
+                                            time={currentInfo.timestamp} />
+                                    </div>
+                                )
                             }
-                            <Card>
-                                <CardContent>
-                                    <Typography gutterBottom variant="h5" component="div">
-                                        Anomaly Stats
-                                    </Typography>
-                                    Captures: {
-                                        tripData.reduce((total, value) => {
-                                            const count = value.waypoints.filter(waypoint => waypoint.action === 'captured portal').length;
-                                            return total + count;
-                                        }, 0)
-                                    }
-                                    <p></p>
-                                    Hacks: {
-                                        tripData.reduce((total, value) => {
-                                            const count = value.waypoints.filter(waypoint => waypoint.action.startsWith('hacked')).length;
-                                            return total + count;
-                                        }, 0)
-                                    }
-                                    <p></p>
-                                    XM Recharged: {xmRecharge}
-                                    <p></p>
-                                    Resonators Deployed: {
-                                        tripData.reduce((total, value) => {
-                                            const count = value.waypoints.filter(waypoint => waypoint.action === 'resonator deployed').length;
-                                            return total + count;
-                                        }, 0)
-                                    }
-                                    <p></p>
-                                    Resonators Destroyed: {
-                                        tripData.reduce((total, value) => {
-                                            const count = value.waypoints.filter(waypoint => waypoint.action === 'resonator destroyed').length;
-                                            return total + count;
-                                        }, 0)
-                                    }
-                                    <p></p>
-                                    Mods Deployed: {
-                                        tripData.reduce((total, value) => {
-                                            const count = value.waypoints.filter(waypoint => waypoint.action === 'mod deployed').length;
-                                            return total + count;
-                                        }, 0)
-                                    }
-                                    <p></p>
-                                    Mods Destroyed: {modsDestroyed}
-                                    <p></p>
-                                    Links Created: {
-                                        tripData.reduce((total, value) => {
-                                            const count = value.waypoints.filter(waypoint => waypoint.action === 'created link').length;
-                                            return total + count;
-                                        }, 0)
-                                    }
-                                    <p></p>
-                                    Hypercubes Used: {
-                                        tripData.reduce((total, value) => {
-                                            const count = value.waypoints.filter(waypoint => waypoint.action === 'used Hypercube').length;
-                                            return total + count;
-                                        }, 0)
-                                    }
-                                    <p></p>
-                                    Distance Walked: {distanceWalked} km
-                                    <p></p>
-                                    Battle Beacons: {battleBeacons.length}
-                                </CardContent>
-                            </Card>
                         </Grid>
                     </Grid>
-                   
                 </>
             )}
             {anomalyId == '' && (
