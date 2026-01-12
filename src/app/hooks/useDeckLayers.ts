@@ -75,12 +75,13 @@ export function useDeckLayers(tripData: TripDataType[], battleBeacons: LatLng[],
             data: tripData,
             getPath: d => d.waypoints.map((p: { coordinates: LatLng; }) => p.coordinates),
             getTimestamps: d => d.waypoints.map((p: { timestamp: number; }) => p.timestamp),
-            getColor: [253, 128, 93],
+            getColor: [255, 0, 0],
             currentTime,
-            trailLength: totalDuration,
             capRounded: true,
             jointRounded: true,
-            widthMinPixels: 8,
+            opacity: 1,
+            widthMinPixels: 2,
+            trailLength: totalDuration
         }),
         [tripData, currentTime, totalDuration]);
 
