@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { getActionsRange, getAnomaly, getDestroyedMods, getDistanceWalked, getUserInteractionBattleBeacon, xmRechargeRange } from '../libs/db';
 import { Box, Card, CardActionArea, CardContent, CardMedia, Grid, Slider, Typography } from '@mui/material';
 import { TripDataType } from '../model/tripdata';
@@ -11,6 +11,8 @@ import { DeckMap } from '../components/map/deck-map';
 import { MapContainer } from '../components/map/map-container';
 import { BreadCrumbs } from '../components/anomaly/breadcrumbs';
 import { StatsCards } from '../components/anomaly/stats-cards';
+import { PickingInfo } from 'deck.gl';
+import { MapInfoWindow } from '../components/anomaly/map-info-window';
 
 type AnomalyData = {
     id: string,
@@ -43,6 +45,8 @@ export default function Page() {
     const [xmRecharge, setXmRecharge] = useState(0)
     const [distanceWalked, setDistanceWalked] = useState('0')
     const [modsDestroyed, setModsDestroyed] = useState(0)
+    const [modalOpen, setModalOpen] = useState(false);
+    const [modalData, setModalData] = useState<PickingInfo>()
 
     const handleChange = (anomId: string) => {
         setAnomalyId(anomId);
@@ -149,7 +153,11 @@ export default function Page() {
         setAnomalyTimelineSpeed(newValue);
     };
 
-    const layers = useDeckLayers(tripData, battleBeacons, pulseTime, currentTime, totalDuration);
+    const layers = useDeckLayers(tripData, battleBeacons, pulseTime, currentTime, totalDuration,
+        (data) => {
+            setModalData(data)
+            setModalOpen(true);
+    });
 
 
     useEffect(() => {
@@ -194,7 +202,12 @@ export default function Page() {
                             <MapContainer
                                 mapStyle={{ width: '100%', height: '85vh', position: 'relative' }}
                                 defaultCenter={[defaultCenter[0], defaultCenter[1]]}
-                                mapOverlay={<DeckMap layers={layers} />}
+                                mapOverlay={
+                                    <div>
+                                        <DeckMap layers={layers} />
+                                        <MapInfoWindow open={modalOpen} data={modalData} />
+                                    </div>
+                                }
                             />
                         </Grid>
                         <Grid size={3}>

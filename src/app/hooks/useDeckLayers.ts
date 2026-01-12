@@ -1,11 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
 import { ScatterplotLayer } from '@deck.gl/layers';
 import { TripDataType } from '../model/tripdata';
-import type { Layer } from '@deck.gl/core';
+import type { Layer, PickingInfo } from '@deck.gl/core';
 import { ScenegraphLayer } from '@deck.gl/mesh-layers';
 import { TripsLayer } from 'deck.gl';
 
-export function useDeckLayers(tripData: TripDataType[], battleBeacons: LatLng[], pulseTime: number, currentTime: number, totalDuration: number) {
+export function useDeckLayers(tripData: TripDataType[], battleBeacons: LatLng[], pulseTime: number, currentTime: number, totalDuration: number, onWaypointClick: (pickingInfo: PickingInfo) => void) {
     
     const [snappedPath, setSnappedPath] = useState<[number, number][] | null>(null);
 
@@ -39,6 +39,11 @@ export function useDeckLayers(tripData: TripDataType[], battleBeacons: LatLng[],
             radiusUnits: 'pixels',
             opacity: 0.9,
             pickable: true,
+            onClick: (clickData) => {
+                if (onWaypointClick) {
+                    onWaypointClick(clickData)
+                };
+            },
             updateTriggers: { getRadius: pulseTime },
         });
     }, [battleBeacons, pulseTime, tripData, currentTime]);
