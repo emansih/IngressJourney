@@ -22,13 +22,18 @@ export function MapInfoWindow({ open, data }: Props) {
         ref.current.setOptions({
             maxWidth: 300
         })
-        if(lat && lng){
+        if (lat && lng) {
             const reducedLat = lat.toFixed(6)
             const reducedLng = lng.toFixed(6)
-            ref.current.setHeaderContent("Battle Beacon Battle")
-            ref.current.setContent(
-                `<img src="/Battle_Beacon_Rare.webp"/><strong>Interacted with battle beacon around the vicinity of ${reducedLat},${reducedLng}</strong>`
-            );
+            ref.current.setContent(`
+                <div style="font-weight: 600; margin-bottom: 4px;">
+                    Battle Beacon Battle
+                </div>
+                <img src="/Battle_Beacon_Rare.webp" />
+                <div>
+                    Interacted with battle beacon around the vicinity of ${reducedLat}, ${reducedLng}
+                </div>
+            `);
             ref.current.setPosition({
                 lat: data.coordinate![1],
                 lng: data.coordinate![0],
@@ -36,7 +41,7 @@ export function MapInfoWindow({ open, data }: Props) {
 
             ref.current.open(map);
         }
-       
+
         return () => {
             ref.current?.close();
         };
