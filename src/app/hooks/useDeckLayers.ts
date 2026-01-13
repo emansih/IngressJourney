@@ -112,7 +112,7 @@ export function useDeckLayers(tripData: TripDataType[], battleBeacons: LatLng[],
 
         if (tripsLayer) layers.push(tripsLayer);
         if (waypointLayer) layers.push(waypointLayer);
-        if (sceneGraphLayer) layers.push(sceneGraphLayer);
+     //   if (sceneGraphLayer) layers.push(sceneGraphLayer);
 
         return layers;
     }, [tripsLayer, waypointLayer, sceneGraphLayer]);
