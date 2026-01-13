@@ -24,3 +24,14 @@ export function formatTime(date: Date, timezone: string) {
     });
     return timePart
 }
+
+export function convertEpochToLocalTime(epochTime: number, timezone: string){
+    const date = new Date(epochTime);
+    return new Intl.DateTimeFormat(undefined, {
+        timeZone: timezone,
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: true
+    }).format(date);    
+}

@@ -7,16 +7,15 @@ interface StatsContent {
     modsDestroyed: number,
     distanceWalked: string,
     battleBeacons: number,
-    time: string | null
 }
 
-export function StatsCards({ tripData, xmRecharged, modsDestroyed, distanceWalked, battleBeacons, time }: StatsContent) {
+export function StatsCards({ tripData, xmRecharged, modsDestroyed, distanceWalked, battleBeacons }: StatsContent) {
 
     return (
         <Card>
             <CardContent>
                 <Typography gutterBottom variant="h6" component="div">
-                    Anomaly Stats{time ? ` as of ${time}` : ""} 
+                    Anomaly Stats 
                 </Typography>
                 Captures: {
                     tripData.reduce((total, value) => {

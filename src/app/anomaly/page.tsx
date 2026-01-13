@@ -13,6 +13,7 @@ import { BreadCrumbs } from '../components/anomaly/breadcrumbs';
 import { StatsCards } from '../components/anomaly/stats-cards';
 import { PickingInfo } from 'deck.gl';
 import { MapInfoWindow } from '../components/anomaly/map-info-window';
+import { UserJourneySeekbar } from '../components/anomaly/user-journey-seekbar';
 
 type AnomalyData = {
     id: string,
@@ -211,20 +212,15 @@ export default function Page() {
                             />
                         </Grid>
                         <Grid size={3}>
-                            <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                                Timeline Speed
-                            </Typography>
-                            <Slider
-                                value={typeof anomalyTimelineSpeed === 'number' ? anomalyTimelineSpeed : 0}
-                                onChange={handleSliderChange}
-                                aria-labelledby="input-slider"
-                                min={1}
-                                max={10}
-                                shiftStep={1}
-                                step={1}
-                                valueLabelDisplay="auto"
-                                marks
-                            />
+                            {startTime && endTime && timeZone && (
+                                <UserJourneySeekbar
+                                    startDateTime={startTime}
+                                    endDateTime={endTime}
+                                    timeZone={timeZone}
+                                    currentTime={currentTime}
+                                    onTimeChange={setCurrentTime}
+                                />
+                            )}
                             {
                                 currentInfo && (
                                     <div>
@@ -236,7 +232,7 @@ export default function Page() {
                                             modsDestroyed={modsDestroyed}
                                             distanceWalked={distanceWalked}
                                             battleBeacons={battleBeacons.length}
-                                            time={currentInfo.timestamp} />
+                                        />
                                     </div>
                                 )
                             }
