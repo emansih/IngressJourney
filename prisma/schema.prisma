@@ -1,14 +1,11 @@
 generator client {
   provider        = "prisma-client"
-  output          = "../generated/ingress"
+  output          = "../src/app/prisma/generated/ingress"
   previewFeatures = ["typedSql"]
-  runtime         = "nodejs"
 }
 
 datasource db {
   provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
   schemas   = ["public"]
 }
 

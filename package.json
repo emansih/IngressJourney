@@ -22,18 +22,22 @@
     "@types/papaparse": "^5.5.0",
     "@vis.gl/react-google-maps": "^1.7.1",
     "deck.gl": "^9.2.5",
+    "dotenv": "^17.2.3",
     "next": "16.1.1",
     "papaparse": "^5.5.3",
+    "pg": "^8.16.3",
     "react": "19.2.3",
     "react-dom": "19.2.3"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
-    "@types/node": "^20",
+    "@types/node": "^20.19.29",
+    "@types/pg": "^8.16.0",
     "@types/react": "19.2.8",
     "@types/react-dom": "19.2.3",
     "eslint": "^9",
     "eslint-config-next": "16.1.1",
+    "prisma": "^7.2.0",
     "typescript": "^5"
   }
 }
